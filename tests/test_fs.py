@@ -1,0 +1,136 @@
+# Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import os
+import tempfile
+import unittest
+from pathlib import Path
+
+from fuzztastic.utils.fs import is_likely_file
+
+
+class TestIsLikelyFile(unittest.TestCase):
+
+    def setUp(self):
+        self.test_dir = Path(tempfile.mkdtemp())
+
+        self.test_file = self.test_dir / "test_file.txt"
+        self.test_file.write_text("test")
+
+    def tearDown(self):
+        if self.test_file.exists():
+            self.test_file.unlink()
+
+        if self.test_dir.exists():
+            os.rmdir(self.test_dir)
+
+    def test_existing_file(self):
+        # Arrange
+        path = self.test_file
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertTrue(result)
+
+    def test_existing_dir(self):
+        # Arrange
+        path = self.test_dir
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertFalse(result)
+
+    def test_nonexistent_file(self):
+        # Arrange
+        path = Path("/nonexistent/file.txt")
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertTrue(result)
+
+    def test_nonexistent_dir(self):
+        # Arrange
+        path = Path("/nonexistent/dir")
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertFalse(result)
+
+    def test_nonexistent_file_with_multiple_extensions(self):
+        # Arrange
+        path = Path("/nonexistent/file.tar.gz")
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertTrue(result)
+
+    def test_nonexistent_hidden_file(self):
+        # Arrange
+        path = Path("/nonexistent/.hidden_file.txt")
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertTrue(result)
+
+    def test_nonexistent_hidden_dir(self):
+        # Arrange
+        path = Path("/nonexistent/.hidden_dir")
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertFalse(result)
+
+    def test_root_dir(self):
+        # Arrange
+        path = Path("/")
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertFalse(result)
+
+    def test_current_dir(self):
+        # Arrange
+        path = Path(".")
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertFalse(result)
+
+    def test_parent_dir(self):
+        # Arrange
+        path = Path("..")
+
+        # Act
+        result = is_likely_file(path)
+
+        # Assert
+        self.assertFalse(result)
