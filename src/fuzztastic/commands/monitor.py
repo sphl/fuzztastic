@@ -27,6 +27,9 @@ from fuzztastic.utils.fs import is_likely_file
 from fuzztastic.utils.io import write_text
 from fuzztastic.utils.proc import run_shell_command
 
+FT_ENVVAR_SHM_NAME: str = "FT_SHM_NAME"
+FT_ENVVAR_BB_COUNT: str = "FT_BB_COUNT"
+
 DEFAULT_OUTPUT_FILE: Path = Path.cwd() / "output.txt"
 DEFAULT_SHM_NAME: str = "fuzztastic_shm"
 DEFAULT_CONFIG_FILE: Path = Path.cwd() / "config.yaml"
@@ -34,15 +37,14 @@ DEFAULT_CONFIG_FILE: Path = Path.cwd() / "config.yaml"
 
 def get_num_bbs(bb_info_file: Path) -> int:
     """
-    Get the number of basic blocks (BBs) from the file.
+    Returns the number of basic blocks (BBs).
     """
-    # TODO: Read number of BBs from the file!
-    return 10
+    return len(json.loads(bb_info_file.read_text()))
 
 
 def persist_cov_data(output_path: Path, is_file: bool, start_time: float, shm: SharedMemory) -> None:
     """
-    Persist the current coverage data to the output file.
+    Stores the new coverage data in the output file.
     """
     report_time = time.time()
     report_file = output_path if is_file else output_path / f"ft_cov_{int(report_time)}.json"
@@ -90,15 +92,21 @@ def main(
     ] = DEFAULT_CONFIG_FILE,
 ) -> None:
     """
-    Monitor the fuzzing campaign and persist the coverage data.
+    Monitors the fuzzing campaign and persists the coverage data.
     """
-    config = Config.from_yaml(config_file)
-
     num_bbs = get_num_bbs(bb_info_file)
+
+    if num_bbs == 0:
+        typer.echo(f"ERROR: Basic block info file '{bb_info_file}' is empty!", err=True)
+        raise typer.Exit(1)
+
     is_file = is_likely_file(output_path)
 
     if not is_file and not output_path.exists():
         output_path.mkdir(parents=True)
+
+    config = Config.from_yaml(config_file)
+    ft_env_vars = {FT_ENVVAR_SHM_NAME: shm_name, FT_ENVVAR_BB_COUNT: str(num_bbs)}
 
     scheduler = Scheduler(config.interval_spec, persist_cov_data)
     shm = SharedMemory(shm_name, num_bbs)
@@ -109,7 +117,7 @@ def main(
     scheduler.start(output_path, is_file, start_time, shm)
 
     try:
-        run_shell_command(fuzzer_cmd)
+        run_shell_command(fuzzer_cmd, ft_env_vars)
     except (ValueError, RuntimeError) as ex:
         logging.error(ex)
     except KeyboardInterrupt:

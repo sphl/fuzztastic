@@ -18,7 +18,7 @@ from pathlib import Path
 
 def write_text(file_path: Path, text: str, linebreak: bool = False, append: bool = False) -> None:
     """
-    Write the given text to the file.
+    Writes the given text to the file.
     """
     mode = "a" if append else "w"
     with file_path.open(mode, encoding="utf-8") as fd:

@@ -1,0 +1,20 @@
+---
+BasedOnStyle: LLVM
+AlignTrailingComments: true
+BinPackParameters: false
+ColumnLimit: 120
+ContinuationIndentWidth: 8
+FixNamespaceComments: true
+IndentWidth: 4
+KeepEmptyLinesAtTheStartOfBlocks: true
+Language: Cpp
+MaxEmptyLinesToKeep: 1
+ReflowComments: true
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+SortUsingDeclarations: true
+SpacesBeforeTrailingComments: 2
+Standard: Auto
+UseTab: Never
+InsertBraces: true
+...

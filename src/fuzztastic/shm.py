@@ -34,13 +34,13 @@ class SharedMemory:
     @property
     def _num_bytes(self) -> int:
         """
-        Get the number of bytes in the SHM segment.
+        Returns the number of bytes in the SHM segment.
         """
         return self._size * sizeof(c_uint64)
 
     def open(self) -> None:
         """
-        Open the SHM segment.
+        Opens the SHM segment.
         """
         if self._shm:
             raise RuntimeError("Shared memory segment is already open!")
@@ -53,7 +53,7 @@ class SharedMemory:
 
     def read(self) -> List[int]:
         """
-        Read the data from the SHM segment.
+        Reads the data from the SHM segment.
         """
         if not self._shm:
             raise RuntimeError("Shared memory segment is not open!")
@@ -65,7 +65,7 @@ class SharedMemory:
 
     def write(self, data: List[int]) -> None:
         """
-        Write the given data to the SHM segment.
+        Writes the given data to the SHM segment.
         """
         if not self._shm:
             raise RuntimeError("Shared memory segment is not open!")
@@ -78,7 +78,7 @@ class SharedMemory:
 
     def close(self) -> None:
         """
-        Close the SHM segment.
+        Closes the SHM segment.
         """
         if not self._shm:
             return

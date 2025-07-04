@@ -26,7 +26,7 @@ INTERVAL_SPEC_FORMAT: str = r"^((?:\d+@\d+;)*)-@(\d+)$"
 
 def parse_interval_spec(interval_spec: str) -> Interval:
     """
-    Parse the interval specification string into an 'Interval' object.
+    Parses the interval specification string into an 'Interval' object.
     """
     match = re.match(INTERVAL_SPEC_FORMAT, interval_spec.replace(" ", ""))
 
@@ -62,7 +62,7 @@ class Scheduler:
 
     def _get_current_interval(self) -> int:
         """
-        Get the current interval based on the elapsed time.
+        Returns the current interval based on the elapsed time.
         """
         assert self._running, "Scheduler is not running!"
 
@@ -78,7 +78,7 @@ class Scheduler:
 
     def start(self, *args: Any, **kwargs: Any) -> None:
         """
-        Start the scheduler.
+        Starts the scheduler.
         """
         if self._running:
             raise RuntimeError("Scheduler is already running!")
@@ -92,7 +92,7 @@ class Scheduler:
 
     def _run(self, task: Callable[..., None], args: Tuple[Any, ...], kwargs: dict[str, Any]) -> None:
         """
-        Run the task at the specified interval(s).
+        Runs the task at the specified interval(s).
         """
         while self._running:
             time.sleep(self._get_current_interval())
@@ -100,13 +100,13 @@ class Scheduler:
 
     def is_running(self) -> bool:
         """
-        Check if the scheduler is currently running.
+        Checks if the scheduler is currently running.
         """
         return self._running
 
     def stop(self) -> None:
         """
-        Stop the scheduler.
+        Stops the scheduler.
         """
         if not self._running:
             return

@@ -20,7 +20,7 @@ from typing import Dict, Optional
 
 def run_shell_command(cmd: str, env_vars: Optional[Dict[str, str]] = None) -> subprocess.CompletedProcess:
     """
-    Run the given shell command.
+    Runs the given shell command.
     """
     env = os.environ.copy()
 

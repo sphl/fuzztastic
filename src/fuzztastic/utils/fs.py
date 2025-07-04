@@ -17,6 +17,6 @@ from pathlib import Path
 
 def is_likely_file(path: Path) -> bool:
     """
-    Check if the given path is (likely) a file.
+    Checks if the given path is (likely) a file.
     """
     return path.is_file() if path.exists() else path.suffix != ""
