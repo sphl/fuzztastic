@@ -1,15 +1,10 @@
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 
-if (APPLE)
-    set(CMAKE_SHARED_LIBRARY_SUFFIX ".dylib")
-    set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
-elseif (UNIX AND NOT APPLE)
-    set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-endif()
+set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
 add_library(fuzztasticrt SHARED fuzztastic_rt.c)
 

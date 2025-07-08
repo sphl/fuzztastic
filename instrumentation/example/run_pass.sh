@@ -3,11 +3,8 @@
 # Compile the C code to LLVM bitcode
 clang -g -O0 -fno-inline -emit-llvm -c ./math.c -o ./math.bc
 
-# Run the fuzztastic pass on the bitcode to generate a coverage-instrumented LLVM IR
-opt -load-pass-plugin=../build/libfuzztasticpass.dylib -passes="fuzztastic" -output-file=./output.json ./math.bc -S -o ./math.ll
+# Run the fuzztastic pass on the bitcode to generate a instrumented LLVM IR
+FT_PASS_OUTPUT_FILE=./math.json opt -load-pass-plugin=../build/libfuzztasticpass.so -passes="fuzztastic" ./math.bc -o ./math_ft.bc
 
-# Convert the instrumented LLVM IR to assembly (to avoid LLVM version compatibility issues)
-llc ./math.ll -o ./math.s
-
-# Compile the assembly with the runtime library to create the final executable
-clang ./math.s -L$(pwd)/../build/runtime-lib -Wl,-rpath,$(pwd)/../build/runtime-lib -lfuzztasticrt -o ./math
+# Compile the instrumented LLVM IR with the runtime library in order to create the final executable
+clang ./math_ft.bc -L$(pwd)/../build/runtime-lib -Wl,-rpath,$(pwd)/../build/runtime-lib -lfuzztasticrt -o ./math

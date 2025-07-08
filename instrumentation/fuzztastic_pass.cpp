@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cstdlib>
 #include <filesystem>
 #include <ft/formatter.h>
 #include <ft/io.h>
-#include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
-#include <llvm/Pass.h>
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/Passes/PassPlugin.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/raw_ostream.h>
 #include <vector>
+
+#define FT_PASS_ENVVAR_OUTPUT_FILE "FT_PASS_OUTPUT_FILE"
 
 #define DEFAULT_OUTPUT_FILE "output.json"
 
@@ -33,10 +32,6 @@ using namespace llvm;
 namespace fs = std::filesystem;
 
 namespace {
-
-cl::opt<std::string> optOutputFile("output-file",
-                                   cl::desc("Path to the output JSON file (default: <cwd>/output.json)"),
-                                   cl::value_desc("<filepath>"));
 
 struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
 
@@ -66,7 +61,7 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
             }
 
             auto functionName = func.getName().str();
-            auto filename = progFile->getFilename().str();
+            auto filename = fs::path(progFile->getFilename().str()).filename().string();
 
             for (auto &bb : func) {
                 Lines lines;
@@ -91,8 +86,10 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
             }
         }
 
-        auto outputFile = !optOutputFile.empty() ? fs::absolute(fs::path(optOutputFile.getValue()))
-                                                 : fs::current_path() / DEFAULT_OUTPUT_FILE;
+        const char *envOutputFile = std::getenv(FT_PASS_ENVVAR_OUTPUT_FILE);
+
+        auto outputFile =
+                envOutputFile ? fs::absolute(fs::path(envOutputFile)) : fs::current_path() / DEFAULT_OUTPUT_FILE;
 
         io::writeFile(outputFile, formatter::toJSON(bbInfos));
 
