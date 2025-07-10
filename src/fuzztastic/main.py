@@ -17,10 +17,10 @@ import sys
 
 import typer
 
-from fuzztastic.commands import monitor
+from src.fuzztastic.commands import track
 
 logging.basicConfig(format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.INFO, stream=sys.stdout)
 
 app = typer.Typer()
 
-app.command(name="monitor", help="Monitor a fuzzing campaign.")(monitor.main)
+app.command(name="track", help="Track code coverage of a fuzzing campaign.")(track.main)

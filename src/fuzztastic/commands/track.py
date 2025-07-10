@@ -73,7 +73,7 @@ def main(
             help="Path to the basic block info file.",
         ),
     ],
-    fuzzer_cmd: Annotated[str, typer.Option("--command", help="Shell command to run the fuzzer.")],
+    fuzzing_cmd: Annotated[str, typer.Option("--command", help="Shell command to run the fuzzer.")],
     output_path: Annotated[
         Path, typer.Option("--output", exists=False, resolve_path=True, help="Path to the output file or directory.")
     ] = DEFAULT_OUTPUT_FILE,
@@ -117,7 +117,7 @@ def main(
     scheduler.start(output_path, is_file, start_time, shm)
 
     try:
-        run_shell_command(fuzzer_cmd, ft_env_vars)
+        run_shell_command(fuzzing_cmd, ft_env_vars)
     except (ValueError, RuntimeError) as ex:
         logging.error(ex)
     except KeyboardInterrupt:
