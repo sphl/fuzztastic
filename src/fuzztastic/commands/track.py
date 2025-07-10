@@ -20,7 +20,7 @@ from pathlib import Path
 import typer
 from typing_extensions import Annotated
 
-from fuzztastic import Config
+from fuzztastic import DEFAULT_CONFIG_FILE, Config
 from fuzztastic.scheduler import Scheduler
 from fuzztastic.shm import SharedMemory
 from fuzztastic.utils.fs import is_likely_file
@@ -32,7 +32,6 @@ FT_ENVVAR_BB_COUNT: str = "FT_BB_COUNT"
 
 DEFAULT_OUTPUT_FILE: Path = Path.cwd() / "output.txt"
 DEFAULT_SHM_NAME: str = "fuzztastic_shm"
-DEFAULT_CONFIG_FILE: Path = Path.cwd() / "config.yaml"
 
 
 def get_num_bbs(bb_info_file: Path) -> int:
@@ -65,7 +64,7 @@ def main(
         Path,
         typer.Option(
             "--input",
-            writable=False,
+            readable=True,
             exists=True,
             file_okay=True,
             dir_okay=False,
@@ -74,7 +73,7 @@ def main(
         ),
     ],
     fuzzing_cmd: Annotated[str, typer.Option("--command", help="Shell command to run the fuzzer.")],
-    output_path: Annotated[
+    output_file: Annotated[
         Path, typer.Option("--output", exists=False, resolve_path=True, help="Path to the output file or directory.")
     ] = DEFAULT_OUTPUT_FILE,
     shm_name: Annotated[str, typer.Option("--shm-name", help="Name of the shared memory segment.")] = DEFAULT_SHM_NAME,
@@ -82,7 +81,7 @@ def main(
         Path,
         typer.Option(
             "--config",
-            writable=False,
+            readable=True,
             exists=True,
             file_okay=True,
             dir_okay=False,
@@ -92,7 +91,7 @@ def main(
     ] = DEFAULT_CONFIG_FILE,
 ) -> None:
     """
-    Monitors the fuzzing campaign and persists the coverage data.
+    Tracks code coverage during a fuzzing campaign.
     """
     num_bbs = get_num_bbs(bb_info_file)
 
@@ -100,21 +99,21 @@ def main(
         typer.echo(f"ERROR: Basic block info file '{bb_info_file}' is empty!", err=True)
         raise typer.Exit(1)
 
-    is_file = is_likely_file(output_path)
+    is_file = is_likely_file(output_file)
 
-    if not is_file and not output_path.exists():
-        output_path.mkdir(parents=True)
+    if not is_file and not output_file.exists():
+        output_file.mkdir(parents=True)
 
-    config = Config.from_yaml(config_file)
+    config = Config.from_yaml(config_file).tracking
     ft_env_vars = {FT_ENVVAR_SHM_NAME: shm_name, FT_ENVVAR_BB_COUNT: str(num_bbs)}
 
     scheduler = Scheduler(config.interval_spec, persist_cov_data)
-    shm = SharedMemory(shm_name, num_bbs)
+    ft_shm = SharedMemory(shm_name, num_bbs)
 
     start_time = time.time()
 
-    shm.open()
-    scheduler.start(output_path, is_file, start_time, shm)
+    ft_shm.open()
+    scheduler.start(output_file, is_file, start_time, ft_shm)
 
     try:
         run_shell_command(fuzzing_cmd, ft_env_vars)
@@ -124,4 +123,4 @@ def main(
         pass
 
     scheduler.stop()
-    shm.close()
+    ft_shm.close()

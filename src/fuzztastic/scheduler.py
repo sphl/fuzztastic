@@ -18,8 +18,8 @@ import time
 from collections import namedtuple
 from typing import Any, Callable, Tuple, Union
 
-IntervalPhase = namedtuple("IntervalPhase", ["duration", "interval"], defaults=[-1, -1])
-Interval = namedtuple("Interval", ["default", "phases"], defaults=[-1, None])
+IntervalPhase = namedtuple("IntervalPhase", ["duration", "interval"])
+Interval = namedtuple("Interval", ["default", "phases"])
 
 INTERVAL_SPEC_FORMAT: str = r"^((?:\d+@\d+;)*)-@(\d+)$"
 

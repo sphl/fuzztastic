@@ -17,10 +17,11 @@ import sys
 
 import typer
 
-from src.fuzztastic.commands import track
+from src.fuzztastic.commands import instrument, track
 
 logging.basicConfig(format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.INFO, stream=sys.stdout)
 
 app = typer.Typer()
 
-app.command(name="track", help="Track code coverage of a fuzzing campaign.")(track.main)
+app.command(name="instrument", help="Instrument a bitcode file with the FuzzTastic LLVM pass.")(instrument.main)
+app.command(name="track", help="Track code coverage during a fuzzing campaign.")(track.main)

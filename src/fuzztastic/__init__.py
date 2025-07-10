@@ -12,10 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import namedtuple
 from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
+
+TrackingConfig = namedtuple("TrackingConfig", ["interval_spec"])
+
+LLVMPassConfig = namedtuple("LLVMPassConfig", ["path", "name"])
+InstrumentationConfig = namedtuple("InstrumentationConfig", ["llvm_opt_path", "ft_llvm_pass"])
+
+DEFAULT_CONFIG_FILE: Path = Path.cwd() / "config.yaml"
 
 
 @dataclass
@@ -24,7 +32,8 @@ class Config:
     FuzzTastic configuration.
     """
 
-    interval_spec: str = ""
+    tracking: TrackingConfig = None
+    instrumentation: InstrumentationConfig = None
 
     @classmethod
     def from_yaml(cls, file_path: Path) -> "Config":
@@ -32,4 +41,16 @@ class Config:
         Load configuration from a YAML file.
         """
         config = yaml.safe_load(file_path.read_text())
-        return cls(interval_spec=config.get("interval", "-@300"))
+
+        return cls(
+            tracking=TrackingConfig(interval_spec=config.get("tracking", {}).get("interval", "-@60")),
+            instrumentation=InstrumentationConfig(
+                llvm_opt_path=config.get("instrumentation", {}).get("llvm_opt", {}).get("path", "/usr/bin/opt"),
+                ft_llvm_pass=LLVMPassConfig(
+                    path=config.get("instrumentation", {})
+                    .get("ft_llvm_pass", {})
+                    .get("path", "/fuzztastic/instrumentation/build/libfuzztasticpass.so"),
+                    name=config.get("instrumentation", {}).get("ft_llvm_pass", {}).get("name", "fuzztastic"),
+                ),
+            ),
+        )
