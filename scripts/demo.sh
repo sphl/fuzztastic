@@ -151,4 +151,6 @@ function main() {
     print_info_msg "✅ Fuzzing completed. The coverage reports are in: $fuzzing_dir/coverage"
 }
 
-main "$PWD/demo"
+demo_dir="$(dirname "$(realpath "$0")")/demo"
+
+main "$demo_dir"
