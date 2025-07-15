@@ -1,7 +1,7 @@
 [project]
 name = "fuzztastic"
 version = "1.2.0"
-description = "A tool for monitoring fuzzing campaigns."
+description = "A fuzzer-agnostic real-time coverage analyzer."
 authors = [
     {name = "Stephan Lipp",email = "sphlpp91@gmail.com"}
 ]
