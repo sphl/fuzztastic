@@ -49,7 +49,7 @@ def persist_cov_data(output_path: Path, is_file: bool, start_time: float, shm: S
     report_file = output_path if is_file else output_path / f"ft_cov_{int(report_time)}.json"
 
     cov_data = shm.read()
-    cov_data_json = {"elapsed_time": round(report_time - start_time, 3), "bb_coverage": cov_data}
+    cov_data_json = {"elapsed_time": round(report_time - start_time, 3), "coverage": cov_data}
 
     if is_file:
         cov_data_json_str = json.dumps(cov_data_json)
