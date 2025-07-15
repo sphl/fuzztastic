@@ -166,4 +166,5 @@ cython_debug/
 .vscode/
 
 # FuzzTastic
-/scripts/demo
+/scripts/demo/*
+!/scripts/demo/demo.sh

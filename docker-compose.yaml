@@ -19,6 +19,8 @@ services:
       target: fuzztastic
     image: fuzztastic:latest
     container_name: fuzztastic
+    volumes:
+      - ./scripts/demo:/fuzztastic/scripts/demo
     stdin_open: true
     tty: true
     restart: unless-stopped
