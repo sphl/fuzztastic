@@ -56,6 +56,7 @@ class Scheduler:
     def __init__(self, interval_spec: str, task: Callable[..., None]) -> None:
         self._interval = parse_interval_spec(interval_spec)
         self._task = task
+
         self._running = False
         self._start_time = None
         self._thread = None
@@ -86,8 +87,8 @@ class Scheduler:
         self._running = True
         self._start_time = time.time()  # type: ignore
 
-        self._thread = threading.Thread(target=self._run, args=(self._task, args, kwargs))  # type: ignore
-        self._thread.daemon = True  # type: ignore
+        self._thread = threading.Thread(target=self._run, args=(self._task, args, kwargs), daemon=True)  # type: ignore
+
         self._thread.start()  # type: ignore
 
     def _run(self, task: Callable[..., None], args: Tuple[Any, ...], kwargs: dict[str, Any]) -> None:

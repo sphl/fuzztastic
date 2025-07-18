@@ -32,8 +32,8 @@ class Config:
     FuzzTastic configuration.
     """
 
-    tracking: TrackingConfig = None
-    instrumentation: InstrumentationConfig = None
+    tracking: TrackingConfig = None  # type: ignore
+    instrumentation: InstrumentationConfig = None  # type: ignore
 
     @classmethod
     def from_yaml(cls, file_path: Path) -> "Config":
