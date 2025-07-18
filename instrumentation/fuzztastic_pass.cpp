@@ -35,6 +35,12 @@ namespace {
 
 struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
 
+    std::string extractProgramName(Module &M) {
+        auto programName = fs::path(M.getName().str()).filename().stem().string();
+
+        return programName.empty() ? "unknown_program" : programName;
+    }
+
     PreservedAnalyses run(Module &M, ModuleAnalysisManager &MAM) {
         BBId bbId = 0;
         std::vector<BBInfo> bbInfos;
@@ -44,6 +50,8 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
         IRBuilder<> builder(context);
         FunctionCallee ftIncCovFunc = M.getOrInsertFunction(
                 "__ft_inc_cov", FunctionType::get(Type::getVoidTy(context), {Type::getInt32Ty(context)}, false));
+
+        auto programName = extractProgramName(M);
 
         for (auto &func : M) {
             if (func.isDeclaration()) {
@@ -79,7 +87,7 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
                     builder.SetInsertPoint(&bb, bb.getFirstInsertionPt());
                     builder.CreateCall(ftIncCovFunc, {ConstantInt::get(Type::getInt32Ty(context), bbId)});
 
-                    bbInfos.emplace_back(bbId, functionName, filename, lines);
+                    bbInfos.emplace_back(bbId, functionName, filename, programName, lines);
 
                     bbId += 1;
                 }

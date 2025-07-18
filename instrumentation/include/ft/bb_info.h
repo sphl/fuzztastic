@@ -34,11 +34,16 @@ class BBInfo {
     BBId id;
     std::string functionName;
     std::string filename;
+    std::string programName;
     Lines lines;
 
   public:
-    BBInfo(BBId id, const std::string &functionName, const std::string &filename, const Lines &lines);
-    BBInfo(BBId id, std::string &&functionName, std::string &&filename, Lines &&lines);
+    BBInfo(BBId id,
+           const std::string &functionName,
+           const std::string &filename,
+           const std::string &programName,
+           const Lines &lines);
+    BBInfo(BBId id, std::string &&functionName, std::string &&filename, const std::string &&programName, Lines &&lines);
     BBInfo(const BBInfo &other) = default;
     BBInfo(BBInfo &&other) = default;
     BBInfo &operator=(const BBInfo &other) = default;
@@ -48,6 +53,7 @@ class BBInfo {
     [[nodiscard]] BBId getId() const noexcept;
     [[nodiscard]] const std::string &getFunctionName() const noexcept;
     [[nodiscard]] const std::string &getFilename() const noexcept;
+    [[nodiscard]] const std::string &getProgramName() const noexcept;
     [[nodiscard]] const Lines &getLines() const noexcept;
 
     bool operator==(const BBInfo &other) const noexcept;

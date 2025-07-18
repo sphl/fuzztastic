@@ -30,6 +30,8 @@ std::string ft::formatter::toJSON(const std::vector<BBInfo> &bbInfos) {
         writer.Uint64(bbInfo.getId());
         writer.Key("function");
         writer.String(bbInfo.getFunctionName().c_str());
+        writer.Key("program");
+        writer.String(bbInfo.getProgramName().c_str());
         writer.Key("file");
         writer.String(bbInfo.getFilename().c_str());
         writer.Key("lines");
