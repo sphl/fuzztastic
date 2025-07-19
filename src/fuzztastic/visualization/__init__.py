@@ -37,7 +37,7 @@ class Visualization(ABC):
         self._bb_metadata = bb_metadata
         self._shm = shm
         self._start_time = start_time
-        self._interval = interval
+        self._interval = interval * 1000
         self._port = port
 
         self._running = False
@@ -46,49 +46,33 @@ class Visualization(ABC):
 
         self._app = dash.Dash(__name__)
         self._setup_app_layout()
-        self._setup_app_callbacks()
+        self._setup_app_update_callback()
 
     def _setup_app_layout(self) -> None:
         """
-        Sets up the app layout.
+        Sets up the app HTML layout.
         """
         self._app.layout = html.Div(
             [
-                dcc.Store(id="zoom-state", data={}),
                 dcc.Interval(id="interval", interval=self._interval, n_intervals=0),
-                dcc.Graph(id="figure", style={"height": "90vh"}),
+                dcc.Graph(id="figure", style={"height": "95vh"}),
             ]
         )
 
-    def _setup_app_callbacks(self) -> None:
+    def _setup_app_update_callback(self) -> None:
         """
-        Sets up the app update callbacks.
+        Sets up the app figure update callback.
         """
 
-        @self._app.callback(Output("zoom-state", "data"), [Input("figure", "relayout_data")], prevent_initial_call=True)
-        def update_zoom_state(relayout_data: Dict) -> Dict:
-            return self._update_zoom_state(relayout_data)
-
-        @self._app.callback(
-            Output("figure", "figure"),
-            [Input("interval", "n_intervals")],
-            [dash.dependencies.State("zoom-state", "data")],
-        )
-        def update_figure(n_interval: int, zoom_state: Dict) -> go.Figure:
+        @self._app.callback(Output("figure", "figure"), [Input("interval", "n_intervals")])
+        def update_figure(_) -> go.Figure:  # type: ignore
             # Read the BB coverage data from SHM segment
             bb_cov_data = self._shm.read()
 
-            return self._update_figure(bb_cov_data, zoom_state)
+            return self._update_figure(bb_cov_data)
 
     @abstractmethod
-    def _update_zoom_state(self, relayout_data: Dict) -> Dict:
-        """
-        Updates the zoom state based on the current app interaction.
-        """
-        pass
-
-    @abstractmethod
-    def _update_figure(self, bb_cov_data: List[int], zoom_state: Dict) -> go.Figure:
+    def _update_figure(self, bb_cov_data: List[int]) -> go.Figure:
         """
         Updates the figure with the current coverage data.
         """
