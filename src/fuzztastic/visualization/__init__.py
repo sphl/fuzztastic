@@ -33,9 +33,9 @@ class Visualization(ABC):
     A abstract base class for visualizations.
     """
 
-    def __init__(self, bb_metadata: Dict, shm: SharedMemory, start_time: float, interval: int, port: int) -> None:
+    def __init__(self, bb_metadata: Dict, ft_shm: SharedMemory, start_time: float, interval: int, port: int) -> None:
         self._bb_metadata = bb_metadata
-        self._shm = shm
+        self._ft_shm = ft_shm
         self._start_time = start_time
         self._interval = interval * 1000
         self._port = port
@@ -67,7 +67,7 @@ class Visualization(ABC):
         @self._app.callback(Output("figure", "figure"), [Input("interval", "n_intervals")])
         def update_figure(_) -> go.Figure:  # type: ignore
             # Read the BB coverage data from SHM segment
-            bb_cov_data = self._shm.read()
+            bb_cov_data = self._ft_shm.read()
 
             return self._update_figure(bb_cov_data)
 

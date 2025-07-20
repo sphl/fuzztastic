@@ -26,19 +26,13 @@ from fuzztastic.shm import SharedMemory
 from fuzztastic.utils.fs import is_likely_file
 from fuzztastic.utils.io import write_text
 from fuzztastic.utils.proc import run_shell_command
+from fuzztastic.visualization.treemap import TreemapVisualization
 
 FT_ENVVAR_SHM_NAME: str = "FT_SHM_NAME"
 FT_ENVVAR_BB_COUNT: str = "FT_BB_COUNT"
 
 DEFAULT_OUTPUT_FILE: Path = Path.cwd() / "output.txt"
 DEFAULT_SHM_NAME: str = "fuzztastic_shm"
-
-
-def get_num_bbs(bb_info_file: Path) -> int:
-    """
-    Returns the number of basic blocks (BBs).
-    """
-    return len(json.loads(bb_info_file.read_text()))
 
 
 def persist_cov_data(output_path: Path, is_file: bool, start_time: float, shm: SharedMemory) -> None:
@@ -93,7 +87,8 @@ def main(
     """
     Tracks code coverage during a fuzzing campaign.
     """
-    num_bbs = get_num_bbs(bb_info_file)
+    bb_metadata = json.loads(bb_info_file.read_text())
+    num_bbs = len(bb_metadata)
 
     if num_bbs == 0:
         typer.echo(f"ERROR: Basic block info file '{bb_info_file}' is empty!", err=True)
@@ -107,13 +102,15 @@ def main(
     config = Config.from_yaml(config_file).tracking
     ft_env_vars = {FT_ENVVAR_SHM_NAME: shm_name, FT_ENVVAR_BB_COUNT: str(num_bbs)}
 
+    start_time = time.time()
+
     scheduler = Scheduler(config.interval_spec, persist_cov_data)
     ft_shm = SharedMemory(shm_name, num_bbs)
-
-    start_time = time.time()
+    treemap = TreemapVisualization(bb_metadata, ft_shm, start_time, 10, 8050)
 
     ft_shm.open()
     scheduler.start(output_file, is_file, start_time, ft_shm)
+    treemap.start()
 
     try:
         run_shell_command(fuzzing_cmd, ft_env_vars)
@@ -122,5 +119,6 @@ def main(
     except KeyboardInterrupt:
         pass
 
+    treemap.stop()
     scheduler.stop()
     ft_shm.close()
