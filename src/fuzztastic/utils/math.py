@@ -15,11 +15,11 @@
 from typing import List, Union
 
 
-def div(numerator: Union[int, float], denominator: Union[int, float]) -> float:
+def div(numerator: Union[int, float], denominator: Union[int, float], default: float = 0.0) -> float:
     """
     Safely divides two numbers (returns 0 if the denominator is zero).
     """
-    return numerator / denominator if denominator != 0 else 0.0
+    return numerator / denominator if denominator != 0 else default
 
 
 def avg(values: List[Union[int, float]]) -> float:

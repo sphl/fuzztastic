@@ -91,14 +91,14 @@ class TreemapVisualization(Visualization):
         """
         Updates the treemap figure with the current coverage data.
         """
-        fuzzing_dur = self._get_fuzzing_duration()
-        bb_coverage = avg([1 if hc > 0 else 0 for hc in bb_cov_data])
-
         bb_cov_tree_df = to_tree_dataframe(self._bb_metadata, bb_cov_data)
 
         bb_cov_tree_df["hit_count_labels"] = bb_cov_tree_df["labels"].apply(
-            lambda s: "# Executions" if "BB" in s else "Avg. # Executions"
+            lambda s: "# BB Executions" if "BB" in s else "Avg. # BB Executions"
         )
+
+        fuzzing_dur = self._get_fuzzing_duration()
+        bb_coverage = avg([1 if hc > 0 else 0 for hc in bb_cov_data])
 
         figure = go.Figure(
             go.Treemap(
@@ -113,9 +113,17 @@ class TreemapVisualization(Visualization):
                 marker=dict(
                     colors=bb_cov_tree_df["hit_counts"],
                     line=dict(width=1, color="lightgray"),
-                    colorscale="Hot_r",
+                    colorscale=[
+                        (0.0, "white"),
+                        (div(1, max(bb_cov_data), 0.00001), "lightyellow"),
+                        (0.2, "yellow"),
+                        (0.4, "orange"),
+                        (0.6, "red"),
+                        (0.8, "darkred"),
+                        (1.0, "black"),
+                    ],
                     showscale=True,
-                    colorbar=dict(title="# Executions", tickformat=",d"),
+                    colorbar=dict(title="# BB Executions", tickformat=",d"),
                 ),
             )
         )
@@ -133,35 +141,3 @@ class TreemapVisualization(Visualization):
         figure.update_layout(**layout)
 
         return figure
-
-
-if __name__ == "__main__":
-    bb_metadata = [
-        {
-            "id": 0,
-            "program": "example_program",
-            "file": "example_file.c",
-            "function": "example_function",
-            "lines": [1, 2],
-        },
-        {"id": 1, "program": "example_program", "file": "example_file.c", "function": "example_function", "lines": [3]},
-        {
-            "id": 2,
-            "program": "example_program",
-            "file": "example_file.c",
-            "function": "another_function",
-            "lines": [4, 5],
-        },
-    ]
-
-    class MockSharedMemory:
-        def read(self) -> List[int]:
-            return [random.randint(0, 10000) for _ in range(3)]
-
-    treemap = TreemapVisualization(bb_metadata, MockSharedMemory(), time.time(), 5, 8050)
-
-    treemap.start()
-
-    time.sleep(120)
-
-    treemap.stop()
