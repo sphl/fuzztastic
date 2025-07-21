@@ -115,7 +115,9 @@ def main(
     ft_shm = SharedMemory(shm_name, num_bbs)
 
     if enable_visualization:
-        visualization = TreemapVisualization(bb_metadata, ft_shm, start_time, 10, 8050)
+        visualization = TreemapVisualization(
+            bb_metadata, ft_shm, start_time, config.visualization.interval, config.visualization.port
+        )
 
     ft_shm.open()
     scheduler.start(output_file, is_file, start_time, ft_shm)

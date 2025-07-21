@@ -18,10 +18,10 @@ from pathlib import Path
 
 import yaml
 
-TrackingConfig = namedtuple("TrackingConfig", ["interval_spec"])
+VisualizationConfig = namedtuple("VisualizationConfig", ["port", "interval"])
+TrackingConfig = namedtuple("TrackingConfig", ["interval_spec", "visualization"])
 
-LLVMPassConfig = namedtuple("LLVMPassConfig", ["path", "name"])
-InstrumentationConfig = namedtuple("InstrumentationConfig", ["llvm_opt_path", "ft_llvm_pass"])
+InstrumentationConfig = namedtuple("InstrumentationConfig", ["llvm_opt_path", "ft_llvm_pass_path"])
 
 DEFAULT_CONFIG_FILE: Path = Path.cwd() / "config.yaml"
 
@@ -43,14 +43,17 @@ class Config:
         config = yaml.safe_load(file_path.read_text())
 
         return cls(
-            tracking=TrackingConfig(interval_spec=config.get("tracking", {}).get("interval", "-@60")),
+            tracking=TrackingConfig(
+                interval_spec=config.get("tracking", {}).get("interval", "-@60"),
+                visualization=VisualizationConfig(
+                    port=config.get("tracking", {}).get("visualization", {}).get("port", 8050),
+                    interval=config.get("tracking", {}).get("visualization", {}).get("interval", 30),
+                ),
+            ),
             instrumentation=InstrumentationConfig(
-                llvm_opt_path=config.get("instrumentation", {}).get("llvm_opt", {}).get("path", "/usr/bin/opt"),
-                ft_llvm_pass=LLVMPassConfig(
-                    path=config.get("instrumentation", {})
-                    .get("ft_llvm_pass", {})
-                    .get("path", "/fuzztastic/instrumentation/build/libfuzztasticpass.so"),
-                    name=config.get("instrumentation", {}).get("ft_llvm_pass", {}).get("name", "fuzztastic"),
+                llvm_opt_path=config.get("instrumentation", {}).get("llvm_opt", "/usr/bin/opt"),
+                ft_llvm_pass_path=config.get("instrumentation", {}).get(
+                    "ft_llvm_pass", "/fuzztastic/instrumentation/build/libfuzztasticpass.so"
                 ),
             ),
         )
