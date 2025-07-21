@@ -19,7 +19,9 @@ import typer
 
 from src.fuzztastic.commands import instrument, track
 
-logging.basicConfig(format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.INFO, stream=sys.stdout)
+logging.basicConfig(
+    format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.WARNING, stream=sys.stdout
+)
 
 app = typer.Typer()
 

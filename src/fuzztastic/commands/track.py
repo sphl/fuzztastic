@@ -16,6 +16,7 @@ import json
 import logging
 import time
 from pathlib import Path
+from typing import Optional
 
 import typer
 from typing_extensions import Annotated
@@ -26,6 +27,7 @@ from fuzztastic.shm import SharedMemory
 from fuzztastic.utils.fs import is_likely_file
 from fuzztastic.utils.io import write_text
 from fuzztastic.utils.proc import run_shell_command
+from fuzztastic.visualization import Visualization
 from fuzztastic.visualization.treemap import TreemapVisualization
 
 FT_ENVVAR_SHM_NAME: str = "FT_SHM_NAME"
@@ -71,6 +73,9 @@ def main(
         Path, typer.Option("--output", exists=False, resolve_path=True, help="Path to the output file or directory.")
     ] = DEFAULT_OUTPUT_FILE,
     shm_name: Annotated[str, typer.Option("--shm-name", help="Name of the shared memory segment.")] = DEFAULT_SHM_NAME,
+    enable_visualization: Annotated[
+        bool, typer.Option("--visualization", is_flag=True, help="Enable the coverage treemap visualization.")
+    ] = False,
     config_file: Annotated[
         Path,
         typer.Option(
@@ -104,13 +109,19 @@ def main(
 
     start_time = time.time()
 
+    visualization: Optional[Visualization] = None
+
     scheduler = Scheduler(config.interval_spec, persist_cov_data)
     ft_shm = SharedMemory(shm_name, num_bbs)
-    treemap = TreemapVisualization(bb_metadata, ft_shm, start_time, 10, 8050)
+
+    if enable_visualization:
+        visualization = TreemapVisualization(bb_metadata, ft_shm, start_time, 10, 8050)
 
     ft_shm.open()
     scheduler.start(output_file, is_file, start_time, ft_shm)
-    treemap.start()
+
+    if enable_visualization:
+        visualization.start()
 
     try:
         run_shell_command(fuzzing_cmd, ft_env_vars)
@@ -119,6 +130,8 @@ def main(
     except KeyboardInterrupt:
         pass
 
-    treemap.stop()
+    if enable_visualization:
+        visualization.stop()
+
     scheduler.stop()
     ft_shm.close()

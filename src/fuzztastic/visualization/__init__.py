@@ -107,6 +107,11 @@ class Visualization(ABC):
         """
         Runs the visualization web app server.
         """
+        import logging
+
+        self._app.logger.setLevel(logging.WARNING)
+        logging.getLogger("werkzeug").setLevel(logging.WARNING)
+
         self._app.run(port=self._port, debug=False, use_reloader=False, threaded=True)
 
     def is_running(self) -> bool:
