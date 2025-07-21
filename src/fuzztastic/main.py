@@ -17,7 +17,8 @@ import sys
 
 import typer
 
-from src.fuzztastic.commands import instrument, track
+from fuzztastic.commands import monitor
+from src.fuzztastic.commands import instrument
 
 logging.basicConfig(
     format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.WARNING, stream=sys.stdout
@@ -26,4 +27,4 @@ logging.basicConfig(
 app = typer.Typer()
 
 app.command(name="instrument", help="Instrument a bitcode file with the FuzzTastic LLVM pass.")(instrument.main)
-app.command(name="track", help="Track code coverage during a fuzzing campaign.")(track.main)
+app.command(name="monitor", help="Monitor code coverage during a fuzzing campaign.")(monitor.main)

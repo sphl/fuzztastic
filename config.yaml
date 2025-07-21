@@ -1,5 +1,5 @@
 ---
-tracking:
+monitoring:
   # Interval for persisting the code coverage data.
   # Format: <duration>@<interval>;...;-@<interval> (all values in seconds).
   # Example: '300@1;1800@60;-@300' -- i.e., a 1 second interval for the first 300 seconds (5 minutes) of the fuzzing

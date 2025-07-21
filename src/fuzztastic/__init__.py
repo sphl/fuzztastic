@@ -19,7 +19,7 @@ from pathlib import Path
 import yaml
 
 VisualizationConfig = namedtuple("VisualizationConfig", ["port", "interval"])
-TrackingConfig = namedtuple("TrackingConfig", ["interval_spec", "visualization"])
+MonitoringConfig = namedtuple("MonitoringConfig", ["interval_spec", "visualization"])
 
 InstrumentationConfig = namedtuple("InstrumentationConfig", ["llvm_opt_path", "ft_llvm_pass_path"])
 
@@ -32,7 +32,7 @@ class Config:
     FuzzTastic configuration.
     """
 
-    tracking: TrackingConfig = None  # type: ignore
+    monitoring: MonitoringConfig = None  # type: ignore
     instrumentation: InstrumentationConfig = None  # type: ignore
 
     @classmethod
@@ -43,11 +43,11 @@ class Config:
         config = yaml.safe_load(file_path.read_text())
 
         return cls(
-            tracking=TrackingConfig(
-                interval_spec=config.get("tracking", {}).get("interval", "-@60"),
+            monitoring=MonitoringConfig(
+                interval_spec=config.get("monitoring", {}).get("interval", "-@60"),
                 visualization=VisualizationConfig(
-                    port=config.get("tracking", {}).get("visualization", {}).get("port", 8050),
-                    interval=config.get("tracking", {}).get("visualization", {}).get("interval", 30),
+                    port=config.get("monitoring", {}).get("visualization", {}).get("port", 8050),
+                    interval=config.get("monitoring", {}).get("visualization", {}).get("interval", 30),
                 ),
             ),
             instrumentation=InstrumentationConfig(

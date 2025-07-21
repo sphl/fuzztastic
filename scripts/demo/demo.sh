@@ -17,7 +17,7 @@
 # -------------------------- FuzzTastic Demo -------------------------
 #
 # This script runs AFL++ on mkd2html for five minutes while FuzzTastic
-# tracks the achieved code coverage in real time.
+# monitors the achieved code coverage in real time.
 #
 # Usage: ./demo.sh
 
@@ -146,7 +146,7 @@ function main() {
     export AFL_TRY_AFFINITY=1
     export AFL_NO_SYNC=1
 
-    run_fuzztastic track --input "$wdir/mkd2html.json" --command "$fuzzing_cmd" --visualization --output "$fuzzing_dir/coverage"
+    run_fuzztastic monitor --input "$wdir/mkd2html.json" --command "$fuzzing_cmd" --visualization --output "$fuzzing_dir/coverage"
 
     print_info_msg "✅ Fuzzing completed. The coverage reports are in: $fuzzing_dir/coverage"
 }

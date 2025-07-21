@@ -56,7 +56,7 @@ def persist_cov_data(output_path: Path, is_file: bool, start_time: float, shm: S
 
 
 def main(
-    bb_info_file: Annotated[
+    bb_metadata_file: Annotated[
         Path,
         typer.Option(
             "--input",
@@ -65,14 +65,16 @@ def main(
             file_okay=True,
             dir_okay=False,
             resolve_path=True,
-            help="Path to the basic block info file.",
+            help="Path to the basic block metadata file.",
         ),
     ],
     fuzzing_cmd: Annotated[str, typer.Option("--command", help="Shell command to run the fuzzer.")],
     output_file: Annotated[
         Path, typer.Option("--output", exists=False, resolve_path=True, help="Path to the output file or directory.")
     ] = DEFAULT_OUTPUT_FILE,
-    shm_name: Annotated[str, typer.Option("--shm-name", help="Name of the shared memory segment.")] = DEFAULT_SHM_NAME,
+    ft_shm_name: Annotated[
+        str, typer.Option("--shm-name", help="Name of the shared memory segment.")
+    ] = DEFAULT_SHM_NAME,
     enable_visualization: Annotated[
         bool, typer.Option("--visualization", is_flag=True, help="Enable the coverage treemap visualization.")
     ] = False,
@@ -90,13 +92,13 @@ def main(
     ] = DEFAULT_CONFIG_FILE,
 ) -> None:
     """
-    Tracks code coverage during a fuzzing campaign.
+    Monitors code coverage during a fuzzing campaign.
     """
-    bb_metadata = json.loads(bb_info_file.read_text())
+    bb_metadata = json.loads(bb_metadata_file.read_text())
     num_bbs = len(bb_metadata)
 
     if num_bbs == 0:
-        typer.echo(f"ERROR: Basic block info file '{bb_info_file}' is empty!", err=True)
+        typer.echo(f"ERROR: Basic block metadata file '{bb_metadata_file}' is empty!", err=True)
         raise typer.Exit(1)
 
     is_file = is_likely_file(output_file)
@@ -104,15 +106,15 @@ def main(
     if not is_file and not output_file.exists():
         output_file.mkdir(parents=True)
 
-    config = Config.from_yaml(config_file).tracking
-    ft_env_vars = {FT_ENVVAR_SHM_NAME: shm_name, FT_ENVVAR_BB_COUNT: str(num_bbs)}
+    config = Config.from_yaml(config_file).monitoring
+    ft_env_vars = {FT_ENVVAR_SHM_NAME: ft_shm_name, FT_ENVVAR_BB_COUNT: str(num_bbs)}
 
     start_time = time.time()
 
     visualization: Optional[Visualization] = None
 
     scheduler = Scheduler(config.interval_spec, persist_cov_data)
-    ft_shm = SharedMemory(shm_name, num_bbs)
+    ft_shm = SharedMemory(ft_shm_name, num_bbs)
 
     if enable_visualization:
         visualization = TreemapVisualization(
