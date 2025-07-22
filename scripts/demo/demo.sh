@@ -19,7 +19,7 @@
 # This script runs AFL++ on mkd2html for five minutes while FuzzTastic
 # monitors the achieved code coverage in real time.
 #
-# Usage: ./demo.sh
+# Usage: ./demo.sh [--skip-setup]
 
 set -e
 
@@ -117,6 +117,7 @@ function setup_corpus() {
 
 function main() {
     local wdir="$1"
+    local flag="$2"
 
     local log_file="$wdir/demo.log"
 
@@ -126,11 +127,13 @@ function main() {
         rm -f "$log_file" 2>/dev/null || true
     fi
 
-    print_info_msg "⏳ Setting up the fuzzer (AFL++), target program (mkd2html), and seed corpus (run 'tail -f $log_file' to see the progress)"
+    if [ "$flag" != "--skip-setup" ]; then
+        print_info_msg "⏳ Setting up the fuzzer (AFL++), target program (mkd2html), and seed corpus (run 'tail -f $log_file' to see the progress)"
 
-    setup_fuzzer "$wdir" &>> "$log_file"
-    setup_target "$wdir" &>> "$log_file"
-    setup_corpus "$wdir" &>> "$log_file"
+        setup_fuzzer "$wdir" &>> "$log_file"
+        setup_target "$wdir" &>> "$log_file"
+        setup_corpus "$wdir" &>> "$log_file"
+    fi
 
     local fuzzing_dur="5m"
     local fuzzing_dir="$wdir/campaign_$EPOCHSECONDS"
@@ -152,5 +155,6 @@ function main() {
 }
 
 demo_dir="$(dirname "$(realpath "$0")")"
+flag="$1"
 
-main "$demo_dir"
+main "$demo_dir" "$flag"
