@@ -15,6 +15,8 @@
 import random
 import time
 from collections import defaultdict, namedtuple
+from concurrent.futures import ThreadPoolExecutor
+from itertools import chain
 from typing import Dict, List
 
 import pandas as pd
@@ -52,6 +54,7 @@ def to_tree_dataframe(bb_metadata: Dict, bb_cov_data: List[int]) -> pd.DataFrame
 
     bb_cov_tree_list = []
 
+    args = []
     for program, files in bb_cov_tree_dict.items():
         program_id = program
         program_hit_count = int(
@@ -61,23 +64,33 @@ def to_tree_dataframe(bb_metadata: Dict, bb_cov_data: List[int]) -> pd.DataFrame
         bb_cov_tree_list.append(to_tree_entry(program_id, program, 0, program_hit_count, ""))
 
         for file, functions in files.items():
-            file_id = f"{program_id}::{file}"
-            file_hit_count = int(avg([bb.hit_count for function in functions.values() for bb in function]))
+            args.append((program_id, file, functions))
 
-            bb_cov_tree_list.append(to_tree_entry(file_id, file, 0, file_hit_count, program_id))
+    def process_file(program_id: str, file: str, functions: Dict[str, List[BBInfo]]) -> List[Dict]:
+        entries = []
 
-            for function, basic_blocks in functions.items():
-                function_id = f"{file_id}::{function}"
-                function_hit_count = int(avg([bb.hit_count for bb in basic_blocks]))
+        file_id = f"{program_id}::{file}"
+        file_hit_count = int(avg([bb.hit_count for function in functions.values() for bb in function]))
 
-                bb_cov_tree_list.append(to_tree_entry(function_id, function, 0, function_hit_count, file_id))
+        entries.append(to_tree_entry(file_id, file, 0, file_hit_count, program_id))
 
-                for bb in basic_blocks:
-                    bb_id = f"{function_id}::BB_{bb.id}"
-                    bb_line_range = f"{min(bb.lines)}-{max(bb.lines)}" if len(bb.lines) > 1 else str(bb.lines[0])
-                    bb_label = f"BB {bb.id} (L:{bb_line_range})"
+        for function, basic_blocks in functions.items():
+            function_id = f"{file_id}::{function}"
+            function_hit_count = int(avg([bb.hit_count for bb in basic_blocks]))
 
-                    bb_cov_tree_list.append(to_tree_entry(bb_id, bb_label, len(bb.lines), bb.hit_count, function_id))
+            entries.append(to_tree_entry(function_id, function, 0, function_hit_count, file_id))
+
+            for bb in basic_blocks:
+                bb_id = f"{function_id}::BB_{bb.id}"
+                bb_line_range = f"{min(bb.lines)}-{max(bb.lines)}" if len(bb.lines) > 1 else str(bb.lines[0])
+                bb_label = f"BB {bb.id} (L:{bb_line_range})"
+
+                entries.append(to_tree_entry(bb_id, bb_label, len(bb.lines), bb.hit_count, function_id))
+
+        return entries
+
+    with ThreadPoolExecutor() as executor:
+        bb_cov_tree_list.extend(chain.from_iterable(executor.map(lambda arg: process_file(*arg), args)))
 
     return pd.DataFrame(bb_cov_tree_list)
 
