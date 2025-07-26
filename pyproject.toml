@@ -18,7 +18,6 @@ dependencies = [
     "dash (>=3.1.1,<4.0.0)",
     "plotly (>=6.2.0,<7.0.0)"
 ]
-packages = [{from = "src", include = "fuzztastic"}]
 
 [tool.poetry.scripts]
 fuzztastic = "fuzztastic.main:app"

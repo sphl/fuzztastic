@@ -18,7 +18,7 @@ import sys
 import typer
 
 from fuzztastic.commands import monitor
-from src.fuzztastic.commands import instrument
+from fuzztastic.commands import instrument
 
 logging.basicConfig(
     format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.WARNING, stream=sys.stdout
