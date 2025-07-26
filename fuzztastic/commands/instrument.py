@@ -14,9 +14,9 @@
 
 import logging
 from pathlib import Path
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from fuzztastic import DEFAULT_CONFIG_FILE, Config
 from fuzztastic.utils.proc import run_shell_command

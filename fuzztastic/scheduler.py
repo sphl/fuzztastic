@@ -16,7 +16,8 @@ import re
 import threading
 import time
 from collections import namedtuple
-from typing import Any, Callable, Tuple, Union
+from collections.abc import Callable
+from typing import Any
 
 IntervalPhase = namedtuple("IntervalPhase", ["duration", "interval"])
 Interval = namedtuple("Interval", ["default", "phases"])
@@ -91,7 +92,7 @@ class Scheduler:
 
         self._thread.start()  # type: ignore
 
-    def _run(self, task: Callable[..., None], args: Tuple[Any, ...], kwargs: dict[str, Any]) -> None:
+    def _run(self, task: Callable[..., None], args: tuple[Any, ...], kwargs: dict[str, Any]) -> None:
         """
         Runs the task at the specified interval(s).
         """

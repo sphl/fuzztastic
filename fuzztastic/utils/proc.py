@@ -15,10 +15,9 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import Dict, Optional
 
 
-def run_shell_command(cmd: str, env_vars: Optional[Dict[str, str]] = None) -> subprocess.CompletedProcess:
+def run_shell_command(cmd: str, env_vars: dict[str, str] | None = None) -> subprocess.CompletedProcess:
     """
     Runs the given shell command.
     """

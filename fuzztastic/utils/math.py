@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Union
 
-
-def div(numerator: Union[int, float], denominator: Union[int, float], default: float = 0.0) -> float:
+def div(numerator: int | float, denominator: int | float, default: float = 0.0) -> float:
     """
     Safely divides two numbers (returns 0 if the denominator is zero).
     """
     return numerator / denominator if denominator != 0 else default
 
 
-def avg(values: List[Union[int, float]]) -> float:
+def avg(values: list[int | float]) -> float:
     """
     Safely calculates the average of a list of numbers (returns 0 if the list is empty).
     """

@@ -16,10 +16,9 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from fuzztastic import DEFAULT_CONFIG_FILE, Config
 from fuzztastic.scheduler import Scheduler
@@ -111,7 +110,7 @@ def main(
 
     start_time = time.time()
 
-    visualization: Optional[Visualization] = None
+    visualization: Visualization | None = None
 
     scheduler = Scheduler(config.interval_spec, persist_cov_data)
     ft_shm = SharedMemory(ft_shm_name, num_bbs)
@@ -125,7 +124,7 @@ def main(
     scheduler.start(output_file, is_file, start_time, ft_shm)
 
     if enable_visualization:
-        visualization.start()
+        visualization.start()  # type: ignore
 
     try:
         run_shell_command(fuzzing_cmd, ft_env_vars)
@@ -135,7 +134,7 @@ def main(
         pass
 
     if enable_visualization:
-        visualization.stop()
+        visualization.stop()  # type: ignore
 
     scheduler.stop()
     ft_shm.close()

@@ -16,7 +16,6 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from typing import Dict, List
 
 import dash
 import plotly.graph_objects as go
@@ -33,7 +32,7 @@ class Visualization(ABC):
     A abstract base class for visualizations.
     """
 
-    def __init__(self, bb_metadata: Dict, ft_shm: SharedMemory, start_time: float, interval: int, port: int) -> None:
+    def __init__(self, bb_metadata: dict, ft_shm: SharedMemory, start_time: float, interval: int, port: int) -> None:
         self._bb_metadata = bb_metadata
         self._ft_shm = ft_shm
         self._start_time = start_time
@@ -72,7 +71,7 @@ class Visualization(ABC):
             return self._update_figure(bb_cov_data)
 
     @abstractmethod
-    def _update_figure(self, bb_cov_data: List[int]) -> go.Figure:
+    def _update_figure(self, bb_cov_data: list[int]) -> go.Figure:
         """
         Updates the figure with the current coverage data.
         """

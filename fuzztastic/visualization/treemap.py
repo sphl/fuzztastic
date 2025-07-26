@@ -15,7 +15,6 @@
 from collections import defaultdict, namedtuple
 from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
-from typing import Dict, List
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -26,11 +25,11 @@ from fuzztastic.visualization import Visualization
 BBInfo = namedtuple("BBInfo", ["id", "lines", "hit_count"])
 
 
-def to_tree_dict(bb_metadata: Dict, bb_cov_data: List[int]) -> Dict:
+def to_tree_dict(bb_metadata: dict, bb_cov_data: list[int]) -> dict:
     """
     Converts basic block metadata and coverage data into a (nested) dictionary structure.
     """
-    bb_cov_tree_dict: Dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    bb_cov_tree_dict: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
     for bb in bb_metadata:
         bb_cov_tree_dict[bb["program"]][bb["file"]][bb["function"]].append(
@@ -40,12 +39,12 @@ def to_tree_dict(bb_metadata: Dict, bb_cov_data: List[int]) -> Dict:
     return bb_cov_tree_dict
 
 
-def to_tree_dataframe(bb_metadata: Dict, bb_cov_data: List[int]) -> pd.DataFrame:
+def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pd.DataFrame:
     """
     Converts basic block metadata and coverage data into a table structure.
     """
 
-    def to_tree_entry(id: str, label: str, value: int, hit_count: int, parent: str) -> Dict:
+    def to_tree_entry(id: str, label: str, value: int, hit_count: int, parent: str) -> dict:
         return {"ids": id, "labels": label, "values": value, "hit_counts": hit_count, "parents": parent}
 
     bb_cov_tree_dict = to_tree_dict(bb_metadata, bb_cov_data)
@@ -64,7 +63,7 @@ def to_tree_dataframe(bb_metadata: Dict, bb_cov_data: List[int]) -> pd.DataFrame
         for file, functions in files.items():
             args.append((program_id, file, functions))
 
-    def process_file(program_id: str, file: str, functions: Dict[str, List[BBInfo]]) -> List[Dict]:
+    def process_file(program_id: str, file: str, functions: dict[str, list[BBInfo]]) -> list[dict]:
         entries = []
 
         file_id = f"{program_id}::{file}"
@@ -98,7 +97,7 @@ class TreemapVisualization(Visualization):
     A class for visualizing code coverage using a treemap.
     """
 
-    def _update_figure(self, bb_cov_data: List[int]) -> go.Figure:
+    def _update_figure(self, bb_cov_data: list[int]) -> go.Figure:
         """
         Updates the treemap figure with the current coverage data.
         """

@@ -15,7 +15,6 @@
 from ctypes import c_uint64, sizeof
 from mmap import MAP_SHARED, PROT_READ, PROT_WRITE, mmap
 from threading import RLock
-from typing import List
 
 import numpy as np
 import posix_ipc
@@ -56,7 +55,7 @@ class SharedMemory:
             # Initialize the SHM segment with zeros
             self.write([0] * self._size)
 
-    def read(self) -> List[int]:
+    def read(self) -> list[int]:
         """
         Reads the data from the SHM segment.
         """
@@ -69,7 +68,7 @@ class SharedMemory:
 
             return np.frombuffer(data, dtype=c_uint64, count=self._size).tolist()
 
-    def write(self, data: List[int]) -> None:
+    def write(self, data: list[int]) -> None:
         """
         Writes the given data to the SHM segment.
         """
