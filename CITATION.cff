@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+title: FuzzTastic
+message: >-
+  If you use FuzzTastic in your research, please cite it as
+  below.
+type: software
+authors:
+  - given-names: Stephan
+    family-names: Lipp
+repository-code: 'https://github.com/tum-i4/fuzztastic'
+repository-artifact: 'https://github.com/tum-i4/fuzztastic-dataset'
+license: Apache-2.0
+version: 2.0.0
+preferred-citation:
+  type: conference-paper
+  title: "FuzzTastic: A Fine-Grained, Fuzzer-Agnostic Coverage Analyzer"
+  authors:
+    - family-names: Lipp
+      given-names: Stephan
+    - family-names: Elsner
+      given-names: Daniel
+    - family-names: Hutzelmann
+      given-names: Thomas
+    - family-names: Banescu
+      given-names: Sebastian
+    - family-names: Pretschner
+      given-names: Alexander
+    - family-names: Böhme
+      given-names: Marcel
+  journal: Companion Proceedings of the International Conference on Software Engineering
+  year: 2022
+  pages: 75-79
+  doi: 10.1145/3510454.3516847
