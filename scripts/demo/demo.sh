@@ -135,7 +135,7 @@ function main() {
         setup_corpus "$wdir" &>> "$log_file"
     fi
 
-    local fuzzing_dur="5m"
+    local fuzzing_dur="${DEMO_DURATION:-10}m"
     local fuzzing_dir="$wdir/campaign_$EPOCHSECONDS"
 
     mkdir "$fuzzing_dir"
