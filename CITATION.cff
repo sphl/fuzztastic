@@ -10,7 +10,7 @@ repository-artifact: 'https://github.com/tum-i4/fuzztastic-dataset'
 license: Apache-2.0
 version: 2.0.0
 preferred-citation:
-  type: conference
+  type: conference-paper
   title: "FuzzTastic: A Fine-Grained, Fuzzer-Agnostic Coverage Analyzer"
   authors:
     - family-names: Lipp
