@@ -19,7 +19,7 @@
 # This script runs AFL++ on mkd2html for five minutes while FuzzTastic
 # monitors the achieved code coverage in real time.
 #
-# Usage: ./demo.sh [--skip-setup]
+# Usage: [DEMO_DURATION=<minutes>] ./demo.sh [--skip-setup]
 
 set -e
 
