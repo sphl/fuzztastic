@@ -40,6 +40,7 @@ RUN apt-get update && \
         rapidjson-dev \
         # Utilities
         htop \
+        openssh-client \
         tmux \
         vim
 
