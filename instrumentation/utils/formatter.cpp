@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <ft/bb_info.h>
 #include <ft/formatter.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
+#include <string>
+#include <vector>
 
 using namespace ft;
 using namespace ft::formatter;
 
-std::string ft::formatter::toJSON(const std::vector<BBInfo> &bbInfos) {
+auto ft::formatter::toJSON(const std::vector<BBInfo> &bbInfos) -> std::string {
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 

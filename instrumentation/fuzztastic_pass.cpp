@@ -14,17 +14,26 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <ft/bb_info.h>
 #include <ft/formatter.h>
 #include <ft/io.h>
+#include <llvm/ADT/ArrayRef.h>
+#include <llvm/Config/llvm-config.h>
+#include <llvm/IR/Analysis.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/PassManager.h>
+#include <llvm/IR/Type.h>
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/Passes/PassPlugin.h>
+#include <llvm/Support/Compiler.h>
+#include <string>
 #include <vector>
 
-#define FT_PASS_ENVVAR_OUTPUT_FILE "FT_PASS_OUTPUT_FILE"
-
-#define DEFAULT_OUTPUT_FILE "output.json"
+constexpr const char *FT_PASS_ENVVAR_OUTPUT_FILE = "FT_PASS_OUTPUT_FILE";
+constexpr const char *DEFAULT_OUTPUT_FILE = "output.json";
 
 using namespace ft;
 using namespace llvm;
@@ -35,21 +44,21 @@ namespace {
 
 struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
 
-    std::string extractProgramName(Module &M) {
+    static auto extractProgramName(Module &M) -> std::string {
         auto programName = fs::path(M.getName().str()).filename().stem().string();
 
         return programName.empty() ? "unknown_program" : programName;
     }
 
-    PreservedAnalyses run(Module &M, ModuleAnalysisManager &MAM) {
+    auto run(Module &M, ModuleAnalysisManager &) -> PreservedAnalyses {
         BBId bbId = 0;
         std::vector<BBInfo> bbInfos;
 
         auto &context = M.getContext();
 
         IRBuilder<> builder(context);
-        FunctionCallee ftIncCovFunc = M.getOrInsertFunction(
-                "__ft_inc_cov", FunctionType::get(Type::getVoidTy(context), {Type::getInt32Ty(context)}, false));
+        FunctionCallee const ftIncCovFunc = M.getOrInsertFunction(
+                "ft_inc_cov", FunctionType::get(Type::getVoidTy(context), {Type::getInt32Ty(context)}, false));
 
         auto programName = extractProgramName(M);
 
@@ -59,12 +68,12 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
             }
 
             auto *funcProg = func.getSubprogram();
-            if (!funcProg) {
+            if (funcProg == nullptr) {
                 continue;
             }
 
             auto *progFile = funcProg->getFile();
-            if (!progFile) {
+            if (progFile == nullptr) {
                 continue;
             }
 
@@ -75,7 +84,7 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
                 Lines lines;
 
                 for (auto &inst : bb) {
-                    if (auto &debugLoc = inst.getDebugLoc()) {
+                    if (const auto &debugLoc = inst.getDebugLoc()) {
                         if (debugLoc.getLine() >= funcProg->getLine()) {
                             lines.insert(debugLoc.getLine());
                         }
@@ -96,8 +105,8 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
 
         const char *envOutputFile = std::getenv(FT_PASS_ENVVAR_OUTPUT_FILE);
 
-        auto outputFile =
-                envOutputFile ? fs::absolute(fs::path(envOutputFile)) : fs::current_path() / DEFAULT_OUTPUT_FILE;
+        auto outputFile = (envOutputFile != nullptr) ? fs::absolute(fs::path(envOutputFile))
+                                                     : fs::current_path() / DEFAULT_OUTPUT_FILE;
 
         io::writeFile(outputFile, formatter::toJSON(bbInfos));
 
@@ -107,7 +116,7 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
 
 }  // namespace
 
-extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo() {
+extern "C" LLVM_ATTRIBUTE_WEAK auto llvmGetPassPluginInfo() -> ::llvm::PassPluginLibraryInfo {
     return {LLVM_PLUGIN_API_VERSION, "FuzztasticPass", LLVM_VERSION_STRING, [](PassBuilder &PB) {
                 PB.registerPipelineParsingCallback(
                         [](StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>) {

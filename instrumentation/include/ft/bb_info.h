@@ -14,10 +14,8 @@
 
 #pragma once
 
-#include <functional>
 #include <set>
 #include <string>
-#include <utility>
 
 namespace ft {
 
@@ -46,18 +44,18 @@ class BBInfo {
     BBInfo(BBId id, std::string &&functionName, std::string &&filename, const std::string &&programName, Lines &&lines);
     BBInfo(const BBInfo &other) = default;
     BBInfo(BBInfo &&other) = default;
-    BBInfo &operator=(const BBInfo &other) = default;
-    BBInfo &operator=(BBInfo &&other) = default;
+    auto operator=(const BBInfo &other) -> BBInfo & = default;
+    auto operator=(BBInfo &&other) -> BBInfo & = default;
     ~BBInfo() = default;
 
-    [[nodiscard]] BBId getId() const noexcept;
-    [[nodiscard]] const std::string &getFunctionName() const noexcept;
-    [[nodiscard]] const std::string &getFilename() const noexcept;
-    [[nodiscard]] const std::string &getProgramName() const noexcept;
-    [[nodiscard]] const Lines &getLines() const noexcept;
+    [[nodiscard]] auto getId() const noexcept -> BBId;
+    [[nodiscard]] auto getFunctionName() const noexcept -> const std::string &;
+    [[nodiscard]] auto getFilename() const noexcept -> const std::string &;
+    [[nodiscard]] auto getProgramName() const noexcept -> const std::string &;
+    [[nodiscard]] auto getLines() const noexcept -> const Lines &;
 
-    bool operator==(const BBInfo &other) const noexcept;
-    bool operator!=(const BBInfo &other) const noexcept;
+    auto operator==(const BBInfo &other) const noexcept -> bool;
+    auto operator!=(const BBInfo &other) const noexcept -> bool;
 };
 
 }  // namespace ft

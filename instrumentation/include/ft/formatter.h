@@ -23,6 +23,6 @@ namespace ft::formatter {
 /**
  * Returns the basic block (BB) information as a JSON string.
  */
-std::string toJSON(const std::vector<BBInfo> &bbInfos);
+auto toJSON(const std::vector<BBInfo> &bbInfos) -> std::string;
 
 }  // namespace ft::formatter

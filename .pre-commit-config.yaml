@@ -18,6 +18,13 @@ repos:
         entry: poetry run mypy
         language: system
         types: [python]
+      # clang-tidy
+      - id: clang-tidy
+        name: clang-tidy
+        entry: clang-tidy -p instrumentation/build/ --quiet --fix
+        language: system
+        files: \.(c|h|cc|cpp|hpp)$
+        exclude: ^instrumentation/build/
       # clang-format
       - id: clang-format
         name: clang-format

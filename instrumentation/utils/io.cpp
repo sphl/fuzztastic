@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <filesystem>
 #include <fstream>
 #include <ft/io.h>
+#include <iterator>
+#include <stdexcept>
+#include <string>
 
 using namespace ft::io;
 
-std::string ft::io::readFile(const fs::path &filepath) {
+auto ft::io::readFile(const fs::path &filepath) -> std::string {
     std::ifstream file(filepath);
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file: " + filepath.string());

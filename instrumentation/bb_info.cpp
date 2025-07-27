@@ -13,34 +13,36 @@
 // limitations under the License.
 
 #include <ft/bb_info.h>
+#include <string>
+#include <utility>
 
 using namespace ft;
 
 BBInfo::BBInfo(BBId id,
-               const std::string &functionName,
-               const std::string &filename,
-               const std::string &programName,
+               const std::string &functionName,  // NOLINT
+               const std::string &filename,      // NOLINT
+               const std::string &programName,   // NOLINT
                const Lines &lines)
     : id(id), functionName(functionName), filename(filename), programName(programName), lines(lines) {}
 
 BBInfo::BBInfo(
         BBId id, std::string &&functionName, std::string &&filename, const std::string &&programName, Lines &&lines)
-    : id(id), functionName(std::move(functionName)), filename(std::move(filename)), programName(std::move(programName)),
+    : id(id), functionName(std::move(functionName)), filename(std::move(filename)), programName(programName),
       lines(std::move(lines)) {}
 
-BBId BBInfo::getId() const noexcept { return id; }
+auto BBInfo::getId() const noexcept -> BBId { return id; }
 
-const std::string &BBInfo::getFunctionName() const noexcept { return functionName; }
+auto BBInfo::getFunctionName() const noexcept -> const std::string & { return functionName; }
 
-const std::string &BBInfo::getFilename() const noexcept { return filename; }
+auto BBInfo::getFilename() const noexcept -> const std::string & { return filename; }
 
-const std::string &BBInfo::getProgramName() const noexcept { return programName; }
+auto BBInfo::getProgramName() const noexcept -> const std::string & { return programName; }
 
-const Lines &BBInfo::getLines() const noexcept { return lines; }
+auto BBInfo::getLines() const noexcept -> const Lines & { return lines; }
 
-bool BBInfo::operator==(const BBInfo &other) const noexcept {
+auto BBInfo::operator==(const BBInfo &other) const noexcept -> bool {
     return id == other.id && functionName == other.functionName && filename == other.filename &&
            programName == other.programName && lines == other.lines;
 }
 
-bool BBInfo::operator!=(const BBInfo &other) const noexcept { return !(*this == other); }
+auto BBInfo::operator!=(const BBInfo &other) const noexcept -> bool { return !(*this == other); }

@@ -24,7 +24,7 @@ namespace ft::io {
 /**
  * Reads the content of a file.
  */
-std::string readFile(const fs::path &filepath);
+auto readFile(const fs::path &filepath) -> std::string;
 
 /**
  * Writes the given content to a file.
