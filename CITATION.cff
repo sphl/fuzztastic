@@ -5,12 +5,12 @@ type: software
 authors:
   - given-names: Stephan
     family-names: Lipp
-repository-code: "https://github.com/tum-i4/fuzztastic"
-repository-artifact: "https://github.com/tum-i4/fuzztastic-dataset"
+repository-code: 'https://github.com/tum-i4/fuzztastic'
+repository-artifact: 'https://github.com/tum-i4/fuzztastic-dataset'
 license: Apache-2.0
 version: 2.0.0
 preferred-citation:
-  type: conference-paper
+  type: conference
   title: "FuzzTastic: A Fine-Grained, Fuzzer-Agnostic Coverage Analyzer"
   authors:
     - family-names: Lipp
@@ -29,4 +29,4 @@ preferred-citation:
   year: 2022
   start: 75
   end: 79
-  doi: 10.1145/3510454.3516847
+  doi: '10.1145/3510454.3516847'
