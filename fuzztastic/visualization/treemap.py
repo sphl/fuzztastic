@@ -26,9 +26,7 @@ BBInfo = namedtuple("BBInfo", ["id", "lines", "hit_count"])
 
 
 def to_tree_dict(bb_metadata: dict, bb_cov_data: list[int]) -> dict:
-    """
-    Converts basic block metadata and coverage data into a (nested) dictionary structure.
-    """
+    """Convert basic block metadata and coverage data into a (nested) dictionary structure."""
     bb_cov_tree_dict: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
     for bb in bb_metadata:
@@ -40,9 +38,7 @@ def to_tree_dict(bb_metadata: dict, bb_cov_data: list[int]) -> dict:
 
 
 def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pd.DataFrame:
-    """
-    Converts basic block metadata and coverage data into a table structure.
-    """
+    """Convert basic block metadata and coverage data into a table structure."""
 
     def to_tree_entry(id: str, label: str, value: int, hit_count: int, parent: str) -> dict:
         return {"ids": id, "labels": label, "values": value, "hit_counts": hit_count, "parents": parent}
@@ -93,14 +89,10 @@ def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pd.DataFrame
 
 
 class TreemapVisualization(Visualization):
-    """
-    A class for visualizing code coverage using a treemap.
-    """
+    """A class for visualizing code coverage using a treemap."""
 
     def _update_figure(self, bb_cov_data: list[int]) -> go.Figure:
-        """
-        Updates the treemap figure with the current coverage data.
-        """
+        """Update the treemap figure with the current coverage data."""
         bb_cov_tree_df = to_tree_dataframe(self._bb_metadata, bb_cov_data)
 
         bb_cov_tree_df["hit_count_labels"] = bb_cov_tree_df["labels"].apply(
@@ -140,7 +132,11 @@ class TreemapVisualization(Visualization):
 
         layout = dict(
             title=dict(
-                text=f"FuzzTastic Coverage Treemap<br><sub>Fuzzing Duration: {fuzzing_dur.hours}h {fuzzing_dur.minutes}m {fuzzing_dur.seconds}s | Basic Block Coverage: {bb_coverage:.2%}</sub>",
+                text=(
+                    "FuzzTastic Coverage Treemap<br><sub>Fuzzing Duration: "
+                    + f"{fuzzing_dur.hours}h {fuzzing_dur.minutes}m {fuzzing_dur.seconds}s | "
+                    + f"Basic Block Coverage: {bb_coverage:.2%}</sub>"
+                ),
                 font=dict(size=22),
                 x=0.5,
             ),

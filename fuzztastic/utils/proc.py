@@ -18,9 +18,7 @@ from pathlib import Path
 
 
 def run_shell_command(cmd: str, env_vars: dict[str, str] | None = None) -> subprocess.CompletedProcess:
-    """
-    Runs the given shell command.
-    """
+    """Run the given shell command."""
     env = os.environ.copy()
 
     if env_vars is not None:

@@ -26,9 +26,7 @@ INTERVAL_SPEC_FORMAT: str = r"^((?:\d+@\d+;)*)-@(\d+)$"
 
 
 def parse_interval_spec(interval_spec: str) -> Interval:
-    """
-    Parses the interval specification string into an 'Interval' object.
-    """
+    """Parse the interval specification string into an 'Interval' object."""
     match = re.match(INTERVAL_SPEC_FORMAT, interval_spec.replace(" ", ""))
 
     if not match:
@@ -50,9 +48,7 @@ def parse_interval_spec(interval_spec: str) -> Interval:
 
 
 class Scheduler:
-    """
-    A scheduler that executes a given task at the specified interval(s).
-    """
+    """A scheduler that executes a given task at the specified interval(s)."""
 
     def __init__(self, interval_spec: str, task: Callable[..., None]) -> None:
         self._interval = parse_interval_spec(interval_spec)
@@ -63,9 +59,7 @@ class Scheduler:
         self._thread = None
 
     def _get_current_interval(self) -> int:
-        """
-        Returns the current interval based on the elapsed time.
-        """
+        """Return the current interval based on the elapsed time."""
         assert self._running, "Scheduler is not running!"
 
         interval = self._interval.default
@@ -79,9 +73,7 @@ class Scheduler:
         return interval
 
     def start(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Starts the scheduler.
-        """
+        """Start the scheduler."""
         if self._running:
             raise RuntimeError("Scheduler is already running!")
 
@@ -93,23 +85,17 @@ class Scheduler:
         self._thread.start()  # type: ignore
 
     def _run(self, task: Callable[..., None], args: tuple[Any, ...], kwargs: dict[str, Any]) -> None:
-        """
-        Runs the task at the specified interval(s).
-        """
+        """Run the task at the specified interval(s)."""
         while self._running:
             time.sleep(self._get_current_interval())
             task(*args, **kwargs)
 
     def is_running(self) -> bool:
-        """
-        Checks if the scheduler is currently running.
-        """
+        """Check if the scheduler is currently running."""
         return self._running
 
     def stop(self) -> None:
-        """
-        Stops the scheduler.
-        """
+        """Stop the scheduler."""
         if not self._running:
             return
 

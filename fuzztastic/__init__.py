@@ -28,9 +28,7 @@ DEFAULT_CONFIG_FILE: Path = Path.cwd() / "config.yaml"
 
 @dataclass
 class Config:
-    """
-    FuzzTastic configuration.
-    """
+    """FuzzTastic configuration."""
 
     monitoring: MonitoringConfig = None  # type: ignore
     instrumentation: InstrumentationConfig = None  # type: ignore

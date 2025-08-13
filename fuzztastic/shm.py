@@ -21,9 +21,7 @@ import posix_ipc
 
 
 class SharedMemory:
-    """
-    A class to manage shared memory (SHM) segments.
-    """
+    """A class to manage shared memory (SHM) segments."""
 
     def __init__(self, name: str, size: int) -> None:
         self._name = name
@@ -36,15 +34,11 @@ class SharedMemory:
 
     @property
     def _num_bytes(self) -> int:
-        """
-        Returns the number of bytes in the SHM segment.
-        """
+        """Return the number of bytes in the SHM segment."""
         return self._size * sizeof(c_uint64)
 
     def open(self) -> None:
-        """
-        Opens the SHM segment.
-        """
+        """Open the SHM segment."""
         with self._lock:
             if self._shm:
                 raise RuntimeError("Shared memory segment is already open!")
@@ -56,9 +50,7 @@ class SharedMemory:
             self.write([0] * self._size)
 
     def read(self) -> list[int]:
-        """
-        Reads the data from the SHM segment.
-        """
+        """Read the data from the SHM segment."""
         with self._lock:
             if not self._shm:
                 raise RuntimeError("Shared memory segment is not open!")
@@ -69,9 +61,7 @@ class SharedMemory:
             return np.frombuffer(data, dtype=c_uint64, count=self._size).tolist()
 
     def write(self, data: list[int]) -> None:
-        """
-        Writes the given data to the SHM segment.
-        """
+        """Write the given data to the SHM segment."""
         with self._lock:
             if not self._shm:
                 raise RuntimeError("Shared memory segment is not open!")
@@ -83,9 +73,7 @@ class SharedMemory:
             self._mem.flush()
 
     def close(self) -> None:
-        """
-        Closes the SHM segment.
-        """
+        """Close the SHM segment."""
         with self._lock:
             if not self._shm:
                 return

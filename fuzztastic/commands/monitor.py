@@ -37,9 +37,7 @@ DEFAULT_SHM_NAME: str = "fuzztastic_shm"
 
 
 def persist_cov_data(output_path: Path, is_file: bool, start_time: float, shm: SharedMemory) -> None:
-    """
-    Stores the new coverage data in the output file.
-    """
+    """Store the new coverage data in the output file."""
     report_time = time.time()
     report_file = output_path if is_file else output_path / f"ft_cov_{int(report_time)}.json"
 
@@ -90,9 +88,7 @@ def main(
         ),
     ] = DEFAULT_CONFIG_FILE,
 ) -> None:
-    """
-    Monitors code coverage during a fuzzing campaign.
-    """
+    """Monitor code coverage during a fuzzing campaign."""
     bb_metadata = json.loads(bb_metadata_file.read_text())
     num_bbs = len(bb_metadata)
 

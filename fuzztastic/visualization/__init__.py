@@ -28,9 +28,7 @@ Duration = namedtuple("Duration", ["hours", "minutes", "seconds"])
 
 
 class Visualization(ABC):
-    """
-    A abstract base class for visualizations.
-    """
+    """A abstract base class for visualizations."""
 
     def __init__(self, bb_metadata: dict, ft_shm: SharedMemory, start_time: float, interval: int, port: int) -> None:
         self._bb_metadata = bb_metadata
@@ -48,9 +46,7 @@ class Visualization(ABC):
         self._setup_app_update_callback()
 
     def _setup_app_layout(self) -> None:
-        """
-        Sets up the app HTML layout.
-        """
+        """Set up the app HTML layout."""
         self._app.layout = html.Div(
             [
                 dcc.Interval(id="interval", interval=self._interval, n_intervals=0),
@@ -59,9 +55,7 @@ class Visualization(ABC):
         )
 
     def _setup_app_update_callback(self) -> None:
-        """
-        Sets up the app figure update callback.
-        """
+        """Set up the app figure update callback."""
 
         @self._app.callback(Output("figure", "figure"), [Input("interval", "n_intervals")])
         def update_figure(_) -> go.Figure:  # type: ignore
@@ -72,15 +66,11 @@ class Visualization(ABC):
 
     @abstractmethod
     def _update_figure(self, bb_cov_data: list[int]) -> go.Figure:
-        """
-        Updates the figure with the current coverage data.
-        """
+        """Update the figure with the current coverage data."""
         pass
 
     def _get_fuzzing_duration(self) -> Duration:
-        """
-        Returns the current fuzzing duration.
-        """
+        """Return the current fuzzing duration."""
         elapsed_time = time.time() - self._start_time
 
         hours, remainder = divmod(elapsed_time, 3600)
@@ -89,9 +79,7 @@ class Visualization(ABC):
         return Duration(int(hours), int(minutes), int(seconds))
 
     def start(self) -> None:
-        """
-        Starts the visualization.
-        """
+        """Start the visualization."""
         if self._running:
             raise RuntimeError("Visualization is already running!")
 
@@ -103,9 +91,7 @@ class Visualization(ABC):
         self._thread.start()  # type: ignore
 
     def _run(self) -> None:
-        """
-        Runs the visualization web app server.
-        """
+        """Run the visualization web app server."""
         import logging
 
         self._app.logger.setLevel(logging.WARNING)
@@ -114,15 +100,11 @@ class Visualization(ABC):
         self._app.run(port=self._port, debug=False, use_reloader=False, threaded=True)
 
     def is_running(self) -> bool:
-        """
-        Checks if the visualization is currently running.
-        """
+        """Check if the visualization is currently running."""
         return self._running
 
     def stop(self) -> None:
-        """
-        Stops the visualization.
-        """
+        """Stop the visualization."""
         if not self._running:
             return
 

@@ -59,13 +59,14 @@ def main(
         ),
     ] = DEFAULT_CONFIG_FILE,
 ) -> None:
-    """
-    Instruments a bitcode file with the FuzzTastic LLVM pass.
-    """
+    """Instrument a bitcode file with the FuzzTastic LLVM pass."""
     config = Config.from_yaml(config_file).instrumentation
 
     ft_env_vars = {FT_PASS_ENVVAR_OUTPUT_FILE: str(bb_metadata_file)}
-    instrumentation_cmd = f"{config.llvm_opt_path} -load-pass-plugin {config.ft_llvm_pass_path} -passes=fuzztastic {str(input_bc_file)} -o {str(output_bc_file)}"
+    instrumentation_cmd = (
+        f"{config.llvm_opt_path} -load-pass-plugin {config.ft_llvm_pass_path} "
+        "-passes=fuzztastic {str(input_bc_file)} -o {str(output_bc_file)}"
+    )
 
     try:
         run_shell_command(instrumentation_cmd, env_vars=ft_env_vars)

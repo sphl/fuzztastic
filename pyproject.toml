@@ -47,7 +47,6 @@ select = [
   # pyupgrade
   "UP",
 ]
-ignore=["E501"]
 
 [tool.ruff.format]
 quote-style = "double"
