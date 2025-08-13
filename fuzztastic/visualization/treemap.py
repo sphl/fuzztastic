@@ -16,8 +16,8 @@ from collections import defaultdict, namedtuple
 from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
 
-import pandas as pd
 import plotly.graph_objects as go
+import polars as pl
 
 from fuzztastic.utils.math import avg, div
 from fuzztastic.visualization import Visualization
@@ -37,7 +37,7 @@ def to_tree_dict(bb_metadata: dict, bb_cov_data: list[int]) -> dict:
     return bb_cov_tree_dict
 
 
-def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pd.DataFrame:
+def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pl.DataFrame:
     """Convert basic block metadata and coverage data into a table structure."""
 
     def to_tree_entry(id: str, label: str, value: int, hit_count: int, parent: str) -> dict:
@@ -85,7 +85,7 @@ def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pd.DataFrame
     with ThreadPoolExecutor() as executor:
         bb_cov_tree_list.extend(chain.from_iterable(executor.map(lambda arg: process_file(*arg), args)))
 
-    return pd.DataFrame(bb_cov_tree_list)
+    return pl.DataFrame(bb_cov_tree_list)
 
 
 class TreemapVisualization(Visualization):
@@ -95,8 +95,10 @@ class TreemapVisualization(Visualization):
         """Update the treemap figure with the current coverage data."""
         bb_cov_tree_df = to_tree_dataframe(self._bb_metadata, bb_cov_data)
 
-        bb_cov_tree_df["hit_count_labels"] = bb_cov_tree_df["labels"].apply(
-            lambda s: "# BB Executions" if "BB" in s else "Avg. # BB Executions"
+        bb_cov_tree_df = bb_cov_tree_df.with_columns(
+            pl.col("labels")
+            .map_elements(lambda s: "# BB Executions" if "BB" in s else "Avg. # BB Executions", return_dtype=pl.String)
+            .alias("hit_count_labels")
         )
 
         fuzzing_dur = self._get_fuzzing_duration()

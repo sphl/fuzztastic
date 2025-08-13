@@ -65,7 +65,7 @@ def main(
     ft_env_vars = {FT_PASS_ENVVAR_OUTPUT_FILE: str(bb_metadata_file)}
     instrumentation_cmd = (
         f"{config.llvm_opt_path} -load-pass-plugin {config.ft_llvm_pass_path} "
-        "-passes=fuzztastic {str(input_bc_file)} -o {str(output_bc_file)}"
+        f"-passes=fuzztastic {str(input_bc_file)} -o {str(output_bc_file)}"
     )
 
     try:
