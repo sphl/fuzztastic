@@ -16,7 +16,8 @@ import re
 import threading
 import time
 from collections import namedtuple
-from typing import Any, Callable, Tuple, Union
+from collections.abc import Callable
+from typing import Any
 
 IntervalPhase = namedtuple("IntervalPhase", ["duration", "interval"])
 Interval = namedtuple("Interval", ["default", "phases"])
@@ -25,9 +26,7 @@ INTERVAL_SPEC_FORMAT: str = r"^((?:\d+@\d+;)*)-@(\d+)$"
 
 
 def parse_interval_spec(interval_spec: str) -> Interval:
-    """
-    Parses the interval specification string into an 'Interval' object.
-    """
+    """Parse the interval specification string into an 'Interval' object."""
     match = re.match(INTERVAL_SPEC_FORMAT, interval_spec.replace(" ", ""))
 
     if not match:
@@ -49,21 +48,18 @@ def parse_interval_spec(interval_spec: str) -> Interval:
 
 
 class Scheduler:
-    """
-    A scheduler that executes a given task at the specified interval(s).
-    """
+    """A scheduler that executes a given task at the specified interval(s)."""
 
     def __init__(self, interval_spec: str, task: Callable[..., None]) -> None:
         self._interval = parse_interval_spec(interval_spec)
         self._task = task
+
         self._running = False
         self._start_time = None
         self._thread = None
 
     def _get_current_interval(self) -> int:
-        """
-        Returns the current interval based on the elapsed time.
-        """
+        """Return the current interval based on the elapsed time."""
         assert self._running, "Scheduler is not running!"
 
         interval = self._interval.default
@@ -77,37 +73,29 @@ class Scheduler:
         return interval
 
     def start(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Starts the scheduler.
-        """
+        """Start the scheduler."""
         if self._running:
             raise RuntimeError("Scheduler is already running!")
 
         self._running = True
         self._start_time = time.time()  # type: ignore
 
-        self._thread = threading.Thread(target=self._run, args=(self._task, args, kwargs))  # type: ignore
-        self._thread.daemon = True  # type: ignore
+        self._thread = threading.Thread(target=self._run, args=(self._task, args, kwargs), daemon=True)  # type: ignore
+
         self._thread.start()  # type: ignore
 
-    def _run(self, task: Callable[..., None], args: Tuple[Any, ...], kwargs: dict[str, Any]) -> None:
-        """
-        Runs the task at the specified interval(s).
-        """
+    def _run(self, task: Callable[..., None], args: tuple[Any, ...], kwargs: dict[str, Any]) -> None:
+        """Run the task at the specified interval(s)."""
         while self._running:
             time.sleep(self._get_current_interval())
             task(*args, **kwargs)
 
     def is_running(self) -> bool:
-        """
-        Checks if the scheduler is currently running.
-        """
+        """Check if the scheduler is currently running."""
         return self._running
 
     def stop(self) -> None:
-        """
-        Stops the scheduler.
-        """
+        """Stop the scheduler."""
         if not self._running:
             return
 

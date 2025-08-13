@@ -18,8 +18,7 @@ from fuzztastic.scheduler import Interval, IntervalPhase, parse_interval_spec
 
 
 class TestParseIntervalSpec(unittest.TestCase):
-
-    def test_valid_with_phases(self):
+    def test_valid_with_phases(self) -> None:
         # Arrange
         interval_spec = "10@5;20@10;-@30"
 
@@ -34,7 +33,7 @@ class TestParseIntervalSpec(unittest.TestCase):
         self.assertEqual(actual.default, expected.default)
         self.assertEqual(actual.phases, expected.phases)
 
-    def test_valid_without_phases(self):
+    def test_valid_without_phases(self) -> None:
         # Arrange
         interval_spec = "-@15"
 
@@ -45,7 +44,7 @@ class TestParseIntervalSpec(unittest.TestCase):
         self.assertEqual(actual.default, 15)
         self.assertEqual(actual.phases, [])
 
-    def test_invalid_missing_dash(self):
+    def test_invalid_missing_dash(self) -> None:
         # Arrange
         interval_spec = "10@5;20@10;30"
 
@@ -53,7 +52,7 @@ class TestParseIntervalSpec(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_interval_spec(interval_spec)
 
-    def test_invalid_wrong_delimiter(self):
+    def test_invalid_wrong_delimiter(self) -> None:
         # Arrange
         interval_spec = "10-5;20-10;-@30"
 
@@ -61,7 +60,7 @@ class TestParseIntervalSpec(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_interval_spec(interval_spec)
 
-    def test_invalid_empty_string(self):
+    def test_invalid_empty_string(self) -> None:
         # Arrange
         interval_spec = ""
 
@@ -69,7 +68,7 @@ class TestParseIntervalSpec(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_interval_spec(interval_spec)
 
-    def test_spaces_in_input(self):
+    def test_spaces_in_input(self) -> None:
         # Arrange
         interval_spec = " 10@5 ; 20@10 ; -@30 "
 
@@ -84,7 +83,7 @@ class TestParseIntervalSpec(unittest.TestCase):
         self.assertEqual(actual.default, expected.default)
         self.assertEqual(actual.phases, expected.phases)
 
-    def test_single_phase(self):
+    def test_single_phase(self) -> None:
         # Arrange
         interval_spec = "25@10;-@50"
 

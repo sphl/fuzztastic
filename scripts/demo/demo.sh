@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env bash
-
 # -------------------------- FuzzTastic Demo -------------------------
 #
 # This script runs AFL++ on mkd2html for five minutes while FuzzTastic
-# tracks the achieved code coverage in real time.
+# monitors the achieved code coverage in real time.
 #
-# Usage: ./demo.sh
+# Usage: [DEMO_DURATION=<minutes>] ./demo.sh [--skip-setup]
 
 set -e
 
@@ -117,6 +117,7 @@ function setup_corpus() {
 
 function main() {
     local wdir="$1"
+    local flag="$2"
 
     local log_file="$wdir/demo.log"
 
@@ -126,13 +127,15 @@ function main() {
         rm -f "$log_file" 2>/dev/null || true
     fi
 
-    print_info_msg "⏳ Setting up the fuzzer (AFL++), target program (mkd2html), and seed corpus (run 'tail -f $log_file' to see the progress)"
+    if [ "$flag" != "--skip-setup" ]; then
+        print_info_msg "⏳ Setting up the fuzzer (AFL++), target program (mkd2html), and seed corpus (run 'tail -f $log_file' to see the progress)"
 
-    setup_fuzzer "$wdir" &>> "$log_file"
-    setup_target "$wdir" &>> "$log_file"
-    setup_corpus "$wdir" &>> "$log_file"
+        setup_fuzzer "$wdir" &>> "$log_file"
+        setup_target "$wdir" &>> "$log_file"
+        setup_corpus "$wdir" &>> "$log_file"
+    fi
 
-    local fuzzing_dur="5m"
+    local fuzzing_dur="${DEMO_DURATION:-10}m"
     local fuzzing_dir="$wdir/campaign_$EPOCHSECONDS"
 
     mkdir "$fuzzing_dir"
@@ -146,11 +149,12 @@ function main() {
     export AFL_TRY_AFFINITY=1
     export AFL_NO_SYNC=1
 
-    run_fuzztastic track --input "$wdir/mkd2html.json" --command "$fuzzing_cmd" --output "$fuzzing_dir/coverage"
+    run_fuzztastic monitor --input "$wdir/mkd2html.json" --command "$fuzzing_cmd" --visualization --output "$fuzzing_dir/coverage"
 
     print_info_msg "✅ Fuzzing completed. The coverage reports are in: $fuzzing_dir/coverage"
 }
 
 demo_dir="$(dirname "$(realpath "$0")")"
+flag="$1"
 
-main "$demo_dir"
+main "$demo_dir" "$flag"

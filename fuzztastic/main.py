@@ -12,19 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import subprocess
-from pathlib import Path
-from typing import Dict, Optional
+import logging
+import sys
 
+import typer
 
-def run_shell_command(cmd: str, env_vars: Optional[Dict[str, str]] = None) -> subprocess.CompletedProcess:
-    """
-    Runs the given shell command.
-    """
-    env = os.environ.copy()
+from fuzztastic.commands import instrument, monitor
 
-    if env_vars is not None:
-        env.update(env_vars)
+logging.basicConfig(
+    format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.WARNING, stream=sys.stdout
+)
 
-    return subprocess.run(cmd, shell=True, cwd=Path.cwd(), env=env, capture_output=False)
+app = typer.Typer()
+
+app.command(name="instrument", help="Instrument a bitcode file with the FuzzTastic LLVM pass.")(instrument.main)
+app.command(name="monitor", help="Monitor code coverage during a fuzzing campaign.")(monitor.main)

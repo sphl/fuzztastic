@@ -11,6 +11,8 @@ services:
     volumes:
       - .:/fuzztastic:cached
     restart: unless-stopped
+    ports:
+      - "8050:8050"
 
   fuzztastic:
     build:
@@ -24,11 +26,13 @@ services:
     stdin_open: true
     tty: true
     restart: unless-stopped
+    ports:
+      - "8050:8050"
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: '4'
           memory: 4G
         reservations:
-          cpus: '1'
+          cpus: '2'
           memory: 2G

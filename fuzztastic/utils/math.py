@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
+
+def div(numerator: int | float, denominator: int | float, default: float = 0.0) -> float:
+    """Safely divide two numbers (returns 0 if the denominator is zero)."""
+    return numerator / denominator if denominator != 0 else default
 
 
-def is_likely_file(path: Path) -> bool:
-    """
-    Checks if the given path is (likely) a file.
-    """
-    return path.is_file() if path.exists() else path.suffix != ""
+def avg(values: list[int | float]) -> float:
+    """Safely calculate the average of a list of numbers (returns 0 if the list is empty)."""
+    return div(sum(values), len(values))

@@ -13,16 +13,15 @@
 # limitations under the License.
 
 import os
+import subprocess
 from pathlib import Path
 
 
-def write_text(file_path: Path, text: str, linebreak: bool = False, append: bool = False) -> None:
-    """
-    Writes the given text to the file.
-    """
-    mode = "a" if append else "w"
-    with file_path.open(mode, encoding="utf-8") as fd:
-        if not linebreak:
-            fd.write(text)
-        else:
-            fd.write(text + os.linesep)
+def run_shell_command(cmd: str, env_vars: dict[str, str] | None = None) -> subprocess.CompletedProcess:
+    """Run the given shell command."""
+    env = os.environ.copy()
+
+    if env_vars is not None:
+        env.update(env_vars)
+
+    return subprocess.run(cmd, shell=True, cwd=Path.cwd(), env=env, capture_output=False)

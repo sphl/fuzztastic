@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-import sys
+import os
+from pathlib import Path
 
-import typer
 
-from src.fuzztastic.commands import instrument, track
-
-logging.basicConfig(format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.INFO, stream=sys.stdout)
-
-app = typer.Typer()
-
-app.command(name="instrument", help="Instrument a bitcode file with the FuzzTastic LLVM pass.")(instrument.main)
-app.command(name="track", help="Track code coverage during a fuzzing campaign.")(track.main)
+def write_text(file_path: Path, text: str, linebreak: bool = False, append: bool = False) -> None:
+    """Write the given text to the file."""
+    mode = "a" if append else "w"
+    with file_path.open(mode, encoding="utf-8") as fd:
+        if not linebreak:
+            fd.write(text)
+        else:
+            fd.write(text + os.linesep)
