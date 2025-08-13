@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import multiprocessing as mp
 from collections import defaultdict, namedtuple
-from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
 
 import plotly.graph_objects as go
@@ -37,12 +37,38 @@ def to_tree_dict(bb_metadata: dict, bb_cov_data: list[int]) -> dict:
     return bb_cov_tree_dict
 
 
+def _to_tree_entry(id: str, label: str, value: int, hit_count: int, parent: str) -> dict:
+    """Create a dictionary entry for a treemap node."""
+    return {"ids": id, "labels": label, "values": value, "hit_counts": hit_count, "parents": parent}
+
+
+def _process_file(program_id: str, file: str, functions: dict[str, list[BBInfo]]) -> list[dict]:
+    """Process a file's functions and basic blocks to create treemap entries."""
+    entries = []
+
+    file_id = f"{program_id}::{file}"
+    file_hit_count = int(avg([bb.hit_count for function in functions.values() for bb in function]))
+
+    entries.append(_to_tree_entry(file_id, file, 0, file_hit_count, program_id))
+
+    for function, basic_blocks in functions.items():
+        function_id = f"{file_id}::{function}"
+        function_hit_count = int(avg([bb.hit_count for bb in basic_blocks]))
+
+        entries.append(_to_tree_entry(function_id, function, 0, function_hit_count, file_id))
+
+        for bb in basic_blocks:
+            bb_id = f"{function_id}::BB_{bb.id}"
+            bb_line_range = f"{min(bb.lines)}-{max(bb.lines)}" if len(bb.lines) > 1 else str(bb.lines[0])
+            bb_label = f"BB {bb.id} (L:{bb_line_range})"
+
+            entries.append(_to_tree_entry(bb_id, bb_label, len(bb.lines), bb.hit_count, function_id))
+
+    return entries
+
+
 def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pl.DataFrame:
     """Convert basic block metadata and coverage data into a table structure."""
-
-    def to_tree_entry(id: str, label: str, value: int, hit_count: int, parent: str) -> dict:
-        return {"ids": id, "labels": label, "values": value, "hit_counts": hit_count, "parents": parent}
-
     bb_cov_tree_dict = to_tree_dict(bb_metadata, bb_cov_data)
 
     bb_cov_tree_list = []
@@ -54,36 +80,13 @@ def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pl.DataFrame
             avg([bb.hit_count for file in files.values() for function in file.values() for bb in function])
         )
 
-        bb_cov_tree_list.append(to_tree_entry(program_id, program, 0, program_hit_count, ""))
+        bb_cov_tree_list.append(_to_tree_entry(program_id, program, 0, program_hit_count, ""))
 
         for file, functions in files.items():
             args.append((program_id, file, functions))
 
-    def process_file(program_id: str, file: str, functions: dict[str, list[BBInfo]]) -> list[dict]:
-        entries = []
-
-        file_id = f"{program_id}::{file}"
-        file_hit_count = int(avg([bb.hit_count for function in functions.values() for bb in function]))
-
-        entries.append(to_tree_entry(file_id, file, 0, file_hit_count, program_id))
-
-        for function, basic_blocks in functions.items():
-            function_id = f"{file_id}::{function}"
-            function_hit_count = int(avg([bb.hit_count for bb in basic_blocks]))
-
-            entries.append(to_tree_entry(function_id, function, 0, function_hit_count, file_id))
-
-            for bb in basic_blocks:
-                bb_id = f"{function_id}::BB_{bb.id}"
-                bb_line_range = f"{min(bb.lines)}-{max(bb.lines)}" if len(bb.lines) > 1 else str(bb.lines[0])
-                bb_label = f"BB {bb.id} (L:{bb_line_range})"
-
-                entries.append(to_tree_entry(bb_id, bb_label, len(bb.lines), bb.hit_count, function_id))
-
-        return entries
-
-    with ThreadPoolExecutor() as executor:
-        bb_cov_tree_list.extend(chain.from_iterable(executor.map(lambda arg: process_file(*arg), args)))
+    with mp.Pool() as pool:
+        bb_cov_tree_list.extend(chain.from_iterable(pool.starmap(_process_file, args)))
 
     return pl.DataFrame(bb_cov_tree_list)
 
