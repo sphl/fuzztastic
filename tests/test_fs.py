@@ -21,21 +21,20 @@ from fuzztastic.utils.fs import is_likely_file
 
 
 class TestIsLikelyFile(unittest.TestCase):
-
-    def setUp(self):
+    def setUp(self) -> None:
         self.test_dir = Path(tempfile.mkdtemp())
 
         self.test_file = self.test_dir / "test_file.txt"
         self.test_file.write_text("test")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         if self.test_file.exists():
             self.test_file.unlink()
 
         if self.test_dir.exists():
             os.rmdir(self.test_dir)
 
-    def test_existing_file(self):
+    def test_existing_file(self) -> None:
         # Arrange
         path = self.test_file
 
@@ -45,7 +44,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertTrue(result)
 
-    def test_existing_dir(self):
+    def test_existing_dir(self) -> None:
         # Arrange
         path = self.test_dir
 
@@ -55,7 +54,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertFalse(result)
 
-    def test_nonexistent_file(self):
+    def test_nonexistent_file(self) -> None:
         # Arrange
         path = Path("/nonexistent/file.txt")
 
@@ -65,7 +64,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertTrue(result)
 
-    def test_nonexistent_dir(self):
+    def test_nonexistent_dir(self) -> None:
         # Arrange
         path = Path("/nonexistent/dir")
 
@@ -75,7 +74,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertFalse(result)
 
-    def test_nonexistent_file_with_multiple_extensions(self):
+    def test_nonexistent_file_with_multiple_extensions(self) -> None:
         # Arrange
         path = Path("/nonexistent/file.tar.gz")
 
@@ -85,7 +84,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertTrue(result)
 
-    def test_nonexistent_hidden_file(self):
+    def test_nonexistent_hidden_file(self) -> None:
         # Arrange
         path = Path("/nonexistent/.hidden_file.txt")
 
@@ -95,7 +94,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertTrue(result)
 
-    def test_nonexistent_hidden_dir(self):
+    def test_nonexistent_hidden_dir(self) -> None:
         # Arrange
         path = Path("/nonexistent/.hidden_dir")
 
@@ -105,7 +104,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertFalse(result)
 
-    def test_root_dir(self):
+    def test_root_dir(self) -> None:
         # Arrange
         path = Path("/")
 
@@ -115,7 +114,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertFalse(result)
 
-    def test_current_dir(self):
+    def test_current_dir(self) -> None:
         # Arrange
         path = Path(".")
 
@@ -125,7 +124,7 @@ class TestIsLikelyFile(unittest.TestCase):
         # Assert
         self.assertFalse(result)
 
-    def test_parent_dir(self):
+    def test_parent_dir(self) -> None:
         # Arrange
         path = Path("..")
 

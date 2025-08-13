@@ -23,11 +23,13 @@
 #define FT_ENVVAR_SHM_NAME "FT_SHM_NAME"
 #define FT_ENVVAR_BB_COUNT "FT_BB_COUNT"
 
+// NOLINTBEGIN
 static size_t shm_size = 0;
 static size_t bb_count = 0;
 
 static uint64_t *shm_data = NULL;
 static uint64_t *cov_data = NULL;
+// NOLINTEND
 
 /**
  * Initializes the shared memory segment and the local coverage data array.
@@ -36,21 +38,21 @@ static void ft_init(void) {
     const char *shm_name = getenv(FT_ENVVAR_SHM_NAME);
 
     if (shm_name == NULL) {
-        fprintf(stderr, "ERROR: Environment variable '%s' not set!\n", FT_ENVVAR_SHM_NAME);
+        fprintf(stderr, "ERROR: Environment variable '%s' not set!\n", FT_ENVVAR_SHM_NAME);  // NOLINT
         exit(EXIT_FAILURE);
     }
 
     const char *temp_str = getenv(FT_ENVVAR_BB_COUNT);
 
     if (temp_str == NULL) {
-        fprintf(stderr, "ERROR: Environment variable '%s' not set!\n", FT_ENVVAR_BB_COUNT);
+        fprintf(stderr, "ERROR: Environment variable '%s' not set!\n", FT_ENVVAR_BB_COUNT);  // NOLINT
         exit(EXIT_FAILURE);
     }
 
-    bb_count = strtoul(temp_str, NULL, 10);
+    bb_count = strtoul(temp_str, NULL, 10);  // NOLINT
 
     if (bb_count == 0) {
-        fprintf(stderr, "ERROR: Invalid number of basic blocks specified!\n");
+        fprintf(stderr, "ERROR: Invalid number of basic blocks specified!\n");  // NOLINT
         exit(EXIT_FAILURE);
     }
 
@@ -59,7 +61,7 @@ static void ft_init(void) {
     int shm_fd = shm_open(shm_name, O_RDWR, 0);
 
     if (shm_fd < 0) {
-        fprintf(stderr, "ERROR: Could not open shared memory segment '%s'!\n", shm_name);
+        fprintf(stderr, "ERROR: Could not open shared memory segment '%s'!\n", shm_name);  // NOLINT
         exit(EXIT_FAILURE);
     }
 
@@ -68,14 +70,14 @@ static void ft_init(void) {
     close(shm_fd);
 
     if (shm_data == MAP_FAILED) {
-        fprintf(stderr, "ERROR: Could not map shared memory segment!\n");
+        fprintf(stderr, "ERROR: Could not map shared memory segment!\n");  // NOLINT
         exit(EXIT_FAILURE);
     }
 
-    cov_data = calloc(bb_count, sizeof(uint64_t));
+    cov_data = calloc(bb_count, sizeof(uint64_t));  // NOLINT
 
     if (cov_data == NULL) {
-        fprintf(stderr, "ERROR: Could not allocate memory for coverage data!\n");
+        fprintf(stderr, "ERROR: Could not allocate memory for coverage data!\n");  // NOLINT
         munmap(shm_data, shm_size);
         exit(EXIT_FAILURE);
     }
@@ -84,7 +86,7 @@ static void ft_init(void) {
 /**
  * Increments the hit count for a basic block.
  */
-void __ft_inc_cov(uint32_t bb_id) { cov_data[bb_id] += 1; }
+void ft_inc_cov(uint32_t bb_id) { cov_data[bb_id] += 1; }
 
 /**
  * Stores the new coverage data into the shared memory segment.
@@ -114,9 +116,9 @@ static void ft_cleanup(void) {
     }
 }
 
-__attribute__((constructor)) void __ft_auto_init(void) { ft_init(); }
+__attribute__((constructor)) void ft_auto_init(void) { ft_init(); }
 
-__attribute__((destructor)) void __ft_auto_sync_and_cleanup(void) {
+__attribute__((destructor)) void ft_auto_sync_and_cleanup(void) {
     ft_sync_cov_data();
     ft_cleanup();
 }

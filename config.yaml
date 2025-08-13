@@ -1,14 +1,19 @@
 ---
-tracking:
-  # Interval format: <duration>@<interval>;...;-@<interval> (all values in seconds).
+monitoring:
+  # Interval for persisting the code coverage data.
+  # Format: <duration>@<interval>;...;-@<interval> (all values in seconds).
   # Example: '300@1;1800@60;-@300' -- i.e., a 1 second interval for the first 300 seconds (5 minutes) of the fuzzing
   #  campaign, then a 60 second interval for the next 1800 seconds (30 minutes), and finally a 300 second (5 minute)
   #  interval for the remainder of the campaign.
   interval: '-@60'
+  visualization:
+    # Port for the visualization web app.
+    port: 8050
+    # Interval (in seconds) for updating the visualization.
+    interval: 30
 instrumentation:
-  llvm_opt:
-    path: '/usr/bin/opt'
-  ft_llvm_pass:
-    path: '/fuzztastic/instrumentation/build/libfuzztasticpass.so'
-    name: 'fuzztastic'
+  # Path to the LLVM opt program.
+  llvm_opt: '/usr/bin/opt'
+  # Path to the FuzzTastic instrumentation pass library.
+  ft_llvm_pass: '/fuzztastic/instrumentation/build/libfuzztasticpass.so'
 ...

@@ -18,12 +18,11 @@ from fuzztastic.shm import SharedMemory
 
 
 class TestSharedMemory(unittest.TestCase):
-
-    def setUp(self):
+    def setUp(self) -> None:
         self.shm_name = "test_shm"
         self.shm_size = 10
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         import posix_ipc
 
         for name in [self.shm_name, self.shm_name + "_1", self.shm_name + "_2"]:
@@ -35,7 +34,7 @@ class TestSharedMemory(unittest.TestCase):
                 # Shared memory doesn't exist, which is fine
                 pass
 
-    def test_num_bytes_property(self):
+    def test_num_bytes_property(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
         expected = self.shm_size * 8
@@ -46,7 +45,7 @@ class TestSharedMemory(unittest.TestCase):
         # Assert
         self.assertEqual(actual, expected)
 
-    def test_open_already_open_raises_error(self):
+    def test_open_already_open_raises_error(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
         shm.open()
@@ -58,14 +57,14 @@ class TestSharedMemory(unittest.TestCase):
         # Cleanup
         shm.close()
 
-    def test_close_not_open(self):
+    def test_close_not_open(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
 
         # Act & Assert (should not raise an exception)
         shm.close()
 
-    def test_read_not_open_raises_error(self):
+    def test_read_not_open_raises_error(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
 
@@ -73,7 +72,7 @@ class TestSharedMemory(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             shm.read()
 
-    def test_write_not_open_raises_error(self):
+    def test_write_not_open_raises_error(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
         test_data = [1, 2, 3, 4, 5]
@@ -82,7 +81,7 @@ class TestSharedMemory(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             shm.write(test_data)
 
-    def test_initial_data_is_zeroed(self):
+    def test_initial_data_is_zeroed(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
         expected = [0] * self.shm_size
@@ -98,7 +97,7 @@ class TestSharedMemory(unittest.TestCase):
         # Cleanup
         shm.close()
 
-    def test_write_and_read_data(self):
+    def test_write_and_read_data(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
         expected = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -115,7 +114,7 @@ class TestSharedMemory(unittest.TestCase):
         # Cleanup
         shm.close()
 
-    def test_write_partial_data(self):
+    def test_write_partial_data(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
         test_data = [1, 2, 3, 4, 5]  # Less data than size
@@ -133,7 +132,7 @@ class TestSharedMemory(unittest.TestCase):
         # Cleanup
         shm.close()
 
-    def test_write_excess_data_truncated(self):
+    def test_write_excess_data_truncated(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
         test_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]  # More data than size
@@ -151,7 +150,7 @@ class TestSharedMemory(unittest.TestCase):
         # Cleanup
         shm.close()
 
-    def test_multiple_writes_overwrite(self):
+    def test_multiple_writes_overwrite(self) -> None:
         # Arrange
         shm = SharedMemory(self.shm_name, self.shm_size)
         expected_1 = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -173,7 +172,7 @@ class TestSharedMemory(unittest.TestCase):
         # Cleanup
         shm.close()
 
-    def test_two_shms_independent_data(self):
+    def test_two_shms_independent_data(self) -> None:
         # Arrange
         shm_1 = SharedMemory(self.shm_name + "_1", 5)
         shm_2 = SharedMemory(self.shm_name + "_2", 5)
@@ -198,7 +197,7 @@ class TestSharedMemory(unittest.TestCase):
         shm_1.close()
         shm_2.close()
 
-    def test_two_shms_different_sizes(self):
+    def test_two_shms_different_sizes(self) -> None:
         # Arrange
         shm_1 = SharedMemory(self.shm_name + "_1", 3)
         shm_2 = SharedMemory(self.shm_name + "_2", 7)

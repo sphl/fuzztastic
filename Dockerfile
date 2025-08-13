@@ -26,7 +26,8 @@ RUN apt-get update && \
         python3-venv \
         # LLVM and Clang
         clang-19 \
-        clang-format \
+        clang-format-19 \
+        clang-tidy-19 \
         libc++-19-dev \
         libc++abi-19-dev \
         libclang-rt-19-dev \
@@ -39,6 +40,7 @@ RUN apt-get update && \
         rapidjson-dev \
         # Utilities
         htop \
+        openssh-client \
         tmux \
         vim
 
@@ -56,12 +58,14 @@ RUN curl -sSL https://install.python-poetry.org | python3 - && \
 
 ENV PATH="$POETRY_HOME/bin:$PATH"
 
-RUN ln -sf /usr/bin/llvm-config-19 /usr/bin/llvm-config && \
-    ln -sf /usr/bin/llvm-link-19 /usr/bin/llvm-link && \
-    ln -sf /usr/bin/clang-19 /usr/bin/clang && \
+RUN ln -sf /usr/bin/clang-19 /usr/bin/clang && \
+    ln -sf /usr/bin/clang-format-19 /usr/bin/clang-format && \
+    ln -sf /usr/bin/clang-tidy-19 /usr/bin/clang-tidy && \
     ln -sf /usr/bin/clang++-19 /usr/bin/clang++ && \
-    ln -sf /usr/bin/opt-19 /usr/bin/opt && \
-    ln -sf /usr/bin/llc-19 /usr/bin/llc
+    ln -sf /usr/bin/llc-19 /usr/bin/llc && \
+    ln -sf /usr/bin/llvm-config-19 /usr/bin/llvm-config && \
+    ln -sf /usr/bin/llvm-link-19 /usr/bin/llvm-link && \
+    ln -sf /usr/bin/opt-19 /usr/bin/opt
 
 ENV LLVM_DIR="/usr/lib/llvm-19/lib/cmake/llvm"
 
