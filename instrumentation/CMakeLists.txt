@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13.4)
-project(fuzztasticpass VERSION 1.2.0 LANGUAGES C CXX)
+project(fuzztasticpass VERSION 2.0.0 LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
