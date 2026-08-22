@@ -1,17 +1,17 @@
 cff-version: 1.2.0
 title: "FuzzTastic"
-message: "If you use FuzzTastic in your research, please cite it as below."
+message: "If you use FuzzTastic or the dataset in your research, please cite it as below."
 type: software
 authors:
   - given-names: Stephan
     family-names: Lipp
-repository-code: 'https://github.com/tum-i4/fuzztastic'
-repository-artifact: 'https://github.com/tum-i4/fuzztastic-dataset'
+repository-code: 'https://github.com/sphl/fuzztastic'
+repository-artifact: 'https://zenodo.org/records/21985962'
 license: Apache-2.0
 version: 2.0.0
 preferred-citation:
   type: conference-paper
-  title: "FuzzTastic: A Fine-Grained, Fuzzer-Agnostic Coverage Analyzer"
+  title: "FuzzTastic: A Fine-grained, Fuzzer-agnostic Coverage Analyzer"
   authors:
     - family-names: Lipp
       given-names: Stephan
@@ -25,7 +25,7 @@ preferred-citation:
       given-names: Alexander
     - family-names: Böhme
       given-names: Marcel
-  journal: "Companion Proceedings of the International Conference on Software Engineering"
+  collection-title: "ACM/IEEE International Conference on Software Engineering: Companion Proceedings (ICSE-Comp)"
   year: 2022
   start: 75
   end: 79

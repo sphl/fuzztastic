@@ -1,4 +1,4 @@
-// Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+// Copyright 2026 Stephan Lipp
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ auto ft::formatter::toJSON(const std::vector<BBInfo> &bbInfos) -> std::string {
         writer.Key("program");
         writer.String(bbInfo.getProgramName().c_str());
         writer.Key("file");
-        writer.String(bbInfo.getFilename().c_str());
+        writer.String(bbInfo.getFilepath().c_str());
         writer.Key("lines");
         writer.StartArray();
         for (const auto &line : bbInfo.getLines()) {

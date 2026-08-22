@@ -9,8 +9,9 @@ monitoring:
   visualization:
     # Port for the visualization web app.
     port: 8050
-    # Interval (in seconds) for updating the visualization.
-    interval: 30
+    treemap:
+      # Interval (in seconds) for updating the treemap visualization.
+      interval: 30
 instrumentation:
   # Path to the LLVM opt program.
   llvm_opt: '/usr/bin/opt'

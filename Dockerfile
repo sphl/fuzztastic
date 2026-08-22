@@ -24,6 +24,7 @@ RUN apt-get update && \
         python3-dev \
         python3-pip \
         python3-venv \
+        python-is-python3 \
         # LLVM and Clang
         clang-19 \
         clang-format-19 \
@@ -87,6 +88,8 @@ WORKDIR /fuzztastic
 
 FROM fuzztastic-base AS fuzztastic-dev
 
+ENV CMAKE_BUILD_TYPE=Debug
+
 CMD ["sleep", "infinity"]
 
 FROM fuzztastic-base AS fuzztastic
@@ -94,10 +97,8 @@ FROM fuzztastic-base AS fuzztastic
 COPY --chown=user:user . .
 
 RUN poetry install --without dev
-RUN cd instrumentation && \
-    mkdir -p build && \
-    cd build && \
-    cmake .. && \
-    make -j
+RUN cmake -B instrumentation/build -S instrumentation \
+        -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build instrumentation/build --parallel
 
 CMD ["/bin/bash"]

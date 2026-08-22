@@ -1,4 +1,4 @@
-// Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+// Copyright 2026 Stephan Lipp
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,28 +20,28 @@ using namespace ft;
 
 BBInfo::BBInfo(BBId id,
                const std::string &functionName,  // NOLINT
-               const std::string &filename,      // NOLINT
+               const std::string &filepath,      // NOLINT
                const std::string &programName,   // NOLINT
                const Lines &lines)
-    : id(id), functionName(functionName), filename(filename), programName(programName), lines(lines) {}
+    : id(id), functionName(functionName), filepath(filepath), programName(programName), lines(lines) {}
 
 BBInfo::BBInfo(
-        BBId id, std::string &&functionName, std::string &&filename, const std::string &&programName, Lines &&lines)
-    : id(id), functionName(std::move(functionName)), filename(std::move(filename)), programName(programName),
+        BBId id, std::string &&functionName, std::string &&filepath, const std::string &&programName, Lines &&lines)
+    : id(id), functionName(std::move(functionName)), filepath(std::move(filepath)), programName(programName),
       lines(std::move(lines)) {}
 
 auto BBInfo::getId() const noexcept -> BBId { return id; }
 
 auto BBInfo::getFunctionName() const noexcept -> const std::string & { return functionName; }
 
-auto BBInfo::getFilename() const noexcept -> const std::string & { return filename; }
+auto BBInfo::getFilepath() const noexcept -> const std::string & { return filepath; }
 
 auto BBInfo::getProgramName() const noexcept -> const std::string & { return programName; }
 
 auto BBInfo::getLines() const noexcept -> const Lines & { return lines; }
 
 auto BBInfo::operator==(const BBInfo &other) const noexcept -> bool {
-    return id == other.id && functionName == other.functionName && filename == other.filename &&
+    return id == other.id && functionName == other.functionName && filepath == other.filepath &&
            programName == other.programName && lines == other.lines;
 }
 

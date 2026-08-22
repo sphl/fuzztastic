@@ -1,4 +1,4 @@
-// Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+// Copyright 2026 Stephan Lipp
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,17 +31,17 @@ class BBInfo {
   private:
     BBId id;
     std::string functionName;
-    std::string filename;
+    std::string filepath;
     std::string programName;
     Lines lines;
 
   public:
     BBInfo(BBId id,
            const std::string &functionName,
-           const std::string &filename,
+           const std::string &filepath,
            const std::string &programName,
            const Lines &lines);
-    BBInfo(BBId id, std::string &&functionName, std::string &&filename, const std::string &&programName, Lines &&lines);
+    BBInfo(BBId id, std::string &&functionName, std::string &&filepath, const std::string &&programName, Lines &&lines);
     BBInfo(const BBInfo &other) = default;
     BBInfo(BBInfo &&other) = default;
     auto operator=(const BBInfo &other) -> BBInfo & = default;
@@ -50,7 +50,7 @@ class BBInfo {
 
     [[nodiscard]] auto getId() const noexcept -> BBId;
     [[nodiscard]] auto getFunctionName() const noexcept -> const std::string &;
-    [[nodiscard]] auto getFilename() const noexcept -> const std::string &;
+    [[nodiscard]] auto getFilepath() const noexcept -> const std::string &;
     [[nodiscard]] auto getProgramName() const noexcept -> const std::string &;
     [[nodiscard]] auto getLines() const noexcept -> const Lines &;
 

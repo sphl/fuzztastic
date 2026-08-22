@@ -12,18 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-import sys
+from fuzztastic.visualization.base import Visualization, VisualizationType
 
-import typer
 
-from fuzztastic.commands import instrument, monitor
+def get_visualization(visualization_type: VisualizationType, start_time: float, interval: int) -> Visualization:
+    """Return an instance of the specified visualization type."""
+    if visualization_type == VisualizationType.TREEMAP:
+        from fuzztastic.visualization.treemap import TreemapVisualization
 
-logging.basicConfig(
-    format="%(asctime)s FuzzTastic[%(levelname)s]: %(message)s", level=logging.WARNING, stream=sys.stdout
-)
+        return TreemapVisualization(start_time, interval)
 
-app = typer.Typer()
-
-app.command(name="instrument", help="Instrument a bitcode file with the FuzzTastic LLVM pass.")(instrument.main)
-app.command(name="monitor", help="Monitor code coverage during a fuzzing campaign.")(monitor.main)
+    raise ValueError(f"Unsupported visualization type: {visualization_type}")

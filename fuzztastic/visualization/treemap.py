@@ -1,4 +1,4 @@
-# Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+# Copyright 2026 Stephan Lipp
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ from itertools import chain
 import plotly.graph_objects as go
 import polars as pl
 
+from fuzztastic.utils.fs import get_distinct_subpaths
 from fuzztastic.utils.math import avg, div
-from fuzztastic.visualization import Visualization
+from fuzztastic.visualization.base import Visualization
 
 BBInfo = namedtuple("BBInfo", ["id", "lines", "hit_count"])
 
@@ -37,19 +38,30 @@ def to_tree_dict(bb_metadata: dict, bb_cov_data: list[int]) -> dict:
     return bb_cov_tree_dict
 
 
-def _to_tree_entry(id: str, label: str, value: int, hit_count: int, parent: str) -> dict:
+def _to_tree_entry(id: str, label: str, value: int, hit_count: int, parent: str, full_path_hover: str = "") -> dict:
     """Create a dictionary entry for a treemap node."""
-    return {"ids": id, "labels": label, "values": value, "hit_counts": hit_count, "parents": parent}
+    return {
+        "ids": id,
+        "labels": label,
+        "values": value,
+        "hit_counts": hit_count,
+        "parents": parent,
+        "full_path_hovers": full_path_hover,
+    }
 
 
-def _process_file(program_id: str, file: str, functions: dict[str, list[BBInfo]]) -> list[dict]:
+def _process_file(
+    program_id: str, file: str, functions: dict[str, list[BBInfo]], file_subpaths: dict[str, str]
+) -> list[dict]:
     """Process a file's functions and basic blocks to create treemap entries."""
     entries = []
 
     file_id = f"{program_id}::{file}"
     file_hit_count = int(avg([bb.hit_count for function in functions.values() for bb in function]))
 
-    entries.append(_to_tree_entry(file_id, file, 0, file_hit_count, program_id))
+    entries.append(
+        _to_tree_entry(file_id, file_subpaths[file], 0, file_hit_count, program_id, f"<br>Full path: {file}")
+    )
 
     for function, basic_blocks in functions.items():
         function_id = f"{file_id}::{function}"
@@ -59,8 +71,10 @@ def _process_file(program_id: str, file: str, functions: dict[str, list[BBInfo]]
 
         for bb in basic_blocks:
             bb_id = f"{function_id}::BB_{bb.id}"
-            bb_line_range = f"{min(bb.lines)}-{max(bb.lines)}" if len(bb.lines) > 1 else str(bb.lines[0])
-            bb_label = f"BB {bb.id} (L:{bb_line_range})"
+            bb_line_label = (
+                f"Lines: {min(bb.lines)}-{max(bb.lines)}" if len(bb.lines) > 1 else f"Line: {str(bb.lines[0])}"
+            )
+            bb_label = f"BB {bb.id} ({bb_line_label})"
 
             entries.append(_to_tree_entry(bb_id, bb_label, len(bb.lines), bb.hit_count, function_id))
 
@@ -85,8 +99,13 @@ def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pl.DataFrame
         for file, functions in files.items():
             args.append((program_id, file, functions))
 
+    all_files = [file for _, file, _ in args]
+    file_subpaths = get_distinct_subpaths(all_files)
+
     with mp.Pool() as pool:
-        bb_cov_tree_list.extend(chain.from_iterable(pool.starmap(_process_file, args)))
+        bb_cov_tree_list.extend(
+            chain.from_iterable(pool.starmap(_process_file, [(p, f, fn, file_subpaths) for p, f, fn in args]))
+        )
 
     return pl.DataFrame(bb_cov_tree_list)
 
@@ -94,13 +113,16 @@ def to_tree_dataframe(bb_metadata: dict, bb_cov_data: list[int]) -> pl.DataFrame
 class TreemapVisualization(Visualization):
     """A class for visualizing code coverage using a treemap."""
 
-    def _update_figure(self, bb_cov_data: list[int]) -> go.Figure:
+    def __init__(self, start_time: float, interval: int) -> None:
+        super().__init__(start_time, interval, label="Treemap")
+
+    def update_figure(self, bb_metadata: dict, bb_cov_data: list[int]) -> go.Figure:
         """Update the treemap figure with the current coverage data."""
-        bb_cov_tree_df = to_tree_dataframe(self._bb_metadata, bb_cov_data)
+        bb_cov_tree_df = to_tree_dataframe(bb_metadata, bb_cov_data)
 
         bb_cov_tree_df = bb_cov_tree_df.with_columns(
             pl.col("labels")
-            .map_elements(lambda s: "# BB Executions" if "BB" in s else "Avg. # BB Executions", return_dtype=pl.String)
+            .map_elements(lambda s: "# BB Input Hits" if "BB" in s else "Avg. # BB Input Hits", return_dtype=pl.String)
             .alias("hit_count_labels")
         )
 
@@ -113,10 +135,10 @@ class TreemapVisualization(Visualization):
                 labels=bb_cov_tree_df["labels"],
                 values=bb_cov_tree_df["values"],
                 parents=bb_cov_tree_df["parents"],
-                customdata=bb_cov_tree_df[["hit_count_labels", "hit_counts"]],
+                customdata=bb_cov_tree_df[["hit_count_labels", "hit_counts", "full_path_hovers"]],
                 textinfo="label",
                 textposition="middle center",
-                hovertemplate="<b>%{label}</b><br>%{customdata[0]}: %{customdata[1]}<extra></extra>",
+                hovertemplate="<b>%{label}</b><br>%{customdata[0]}: %{customdata[1]}%{customdata[2]}<extra></extra>",
                 marker=dict(
                     colors=bb_cov_tree_df["hit_counts"],
                     line=dict(width=1, color="lightgray"),
@@ -130,7 +152,7 @@ class TreemapVisualization(Visualization):
                         (1.0, "black"),
                     ],
                     showscale=True,
-                    colorbar=dict(title="# BB Executions", tickformat=",d"),
+                    colorbar=dict(title="# BB Input Hits", tickformat=",d"),
                 ),
             )
         )
@@ -140,7 +162,7 @@ class TreemapVisualization(Visualization):
                 text=(
                     "FuzzTastic Coverage Treemap<br><sub>Fuzzing Duration: "
                     + f"{fuzzing_dur.hours}h {fuzzing_dur.minutes}m {fuzzing_dur.seconds}s | "
-                    + f"Basic Block Coverage: {bb_coverage:.2%}</sub>"
+                    + f"Basic Block (BB) Coverage: {bb_coverage:.2%}</sub>"
                 ),
                 font=dict(size=22),
                 x=0.5,

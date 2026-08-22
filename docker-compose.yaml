@@ -12,7 +12,7 @@ services:
       - .:/fuzztastic:cached
     restart: unless-stopped
     ports:
-      - "8050:8050"
+      - "8051:8050"
 
   fuzztastic:
     build:
@@ -22,7 +22,7 @@ services:
     image: fuzztastic:latest
     container_name: fuzztastic
     volumes:
-      - ./scripts/demo:/fuzztastic/scripts/demo
+      - ./data/demo:/fuzztastic/data/demo
     stdin_open: true
     tty: true
     restart: unless-stopped

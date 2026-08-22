@@ -1,4 +1,4 @@
-# Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+# Copyright 2026 Stephan Lipp
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ from pathlib import Path
 
 import yaml
 
-VisualizationConfig = namedtuple("VisualizationConfig", ["port", "interval"])
+TreemapVisualizationConfig = namedtuple("TreemapVisualizationConfig", ["interval"])
+VisualizationConfig = namedtuple("VisualizationConfig", ["port", "treemap"])
 MonitoringConfig = namedtuple("MonitoringConfig", ["interval_spec", "visualization"])
 
 InstrumentationConfig = namedtuple("InstrumentationConfig", ["llvm_opt_path", "ft_llvm_pass_path"])
@@ -45,7 +46,12 @@ class Config:
                 interval_spec=config.get("monitoring", {}).get("interval", "-@60"),
                 visualization=VisualizationConfig(
                     port=config.get("monitoring", {}).get("visualization", {}).get("port", 8050),
-                    interval=config.get("monitoring", {}).get("visualization", {}).get("interval", 30),
+                    treemap=TreemapVisualizationConfig(
+                        interval=config.get("monitoring", {})
+                        .get("visualization", {})
+                        .get("treemap", {})
+                        .get("interval", 30),
+                    ),
                 ),
             ),
             instrumentation=InstrumentationConfig(

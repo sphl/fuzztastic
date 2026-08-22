@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+# Copyright 2026 Stephan Lipp
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 # -------------------------- FuzzTastic Demo -------------------------
 #
-# This script runs AFL++ on mkd2html for five minutes while FuzzTastic
+# This script runs AFL++ on mkd2html for ten minutes while FuzzTastic
 # monitors the achieved code coverage in real time.
 #
-# Usage: [DEMO_DURATION=<minutes>] ./demo.sh [--skip-setup]
+# Usage: [DEMO_DURATION=<MINUTES>] ./run_demo.sh [--skip-setup]
 
 set -e
 
@@ -149,12 +149,13 @@ function main() {
     export AFL_TRY_AFFINITY=1
     export AFL_NO_SYNC=1
 
-    run_fuzztastic monitor --input "$wdir/mkd2html.json" --command "$fuzzing_cmd" --visualization --output "$fuzzing_dir/coverage"
+    run_fuzztastic monitor --input "$wdir/mkd2html.json" --command "$fuzzing_cmd" --visualization treemap --output "$fuzzing_dir/coverage"
 
     print_info_msg "✅ Fuzzing completed. The coverage reports are in: $fuzzing_dir/coverage"
 }
 
-demo_dir="$(dirname "$(realpath "$0")")"
+repo_root="$(dirname "$(dirname "$(realpath "$0")")")"
+demo_dir="$repo_root/data/demo"
 flag="$1"
 
 main "$demo_dir" "$flag"

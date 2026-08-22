@@ -1,4 +1,4 @@
-// Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+// Copyright 2026 Stephan Lipp
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
             }
 
             auto functionName = func.getName().str();
-            auto filename = fs::path(progFile->getFilename().str()).filename().string();
+            auto filepath = (fs::path(progFile->getDirectory().str()) / progFile->getFilename().str()).string();
 
             for (auto &bb : func) {
                 Lines lines;
@@ -96,7 +96,7 @@ struct FuzztasticPass : public PassInfoMixin<FuzztasticPass> {
                     builder.SetInsertPoint(&bb, bb.getFirstInsertionPt());
                     builder.CreateCall(ftIncCovFunc, {ConstantInt::get(Type::getInt32Ty(context), bbId)});
 
-                    bbInfos.emplace_back(bbId, functionName, filename, programName, lines);
+                    bbInfos.emplace_back(bbId, functionName, filepath, programName, lines);
 
                     bbId += 1;
                 }

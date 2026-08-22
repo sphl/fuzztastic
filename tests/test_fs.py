@@ -1,4 +1,4 @@
-# Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+# Copyright 2026 Stephan Lipp
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from fuzztastic.utils.fs import is_likely_file
+from fuzztastic.utils.fs import get_distinct_subpaths, is_likely_file
 
 
 class TestIsLikelyFile(unittest.TestCase):
@@ -133,3 +133,65 @@ class TestIsLikelyFile(unittest.TestCase):
 
         # Assert
         self.assertFalse(result)
+
+
+class TestGetDistinctSubpaths(unittest.TestCase):
+    def test_distinct_filenames(self) -> None:
+        # Arrange
+        paths = ["/a/foo.c", "/b/bar.c"]
+
+        # Act
+        result = get_distinct_subpaths(paths)
+
+        # Assert
+        self.assertEqual(result, {"/a/foo.c": "foo.c", "/b/bar.c": "bar.c"})
+
+    def test_same_filename_different_dir(self) -> None:
+        # Arrange
+        paths = ["/a/file.c", "/b/file.c"]
+
+        # Act
+        result = get_distinct_subpaths(paths)
+
+        # Assert
+        self.assertEqual(result, {"/a/file.c": "a/file.c", "/b/file.c": "b/file.c"})
+
+    def test_same_filename_and_dir(self) -> None:
+        # Arrange
+        paths = ["/a/b/file.c", "/a/b/file.c"]
+
+        # Act
+        result = get_distinct_subpaths(paths)
+
+        # Assert - full path returned when suffix is not unique
+        self.assertEqual(result, {"/a/b/file.c": "/a/b/file.c"})
+
+    def test_mixed_unique_and_ambiguous(self) -> None:
+        # Arrange
+        paths = ["/a/foo.c", "/a/shared.c", "/b/shared.c"]
+
+        # Act
+        result = get_distinct_subpaths(paths)
+
+        # Assert
+        self.assertEqual(result, {"/a/foo.c": "foo.c", "/a/shared.c": "a/shared.c", "/b/shared.c": "b/shared.c"})
+
+    def test_single_path(self) -> None:
+        # Arrange
+        paths = ["/a/b/file.c"]
+
+        # Act
+        result = get_distinct_subpaths(paths)
+
+        # Assert
+        self.assertEqual(result, {"/a/b/file.c": "file.c"})
+
+    def test_empty_list(self) -> None:
+        # Arrange
+        paths: list[str] = []
+
+        # Act
+        result = get_distinct_subpaths(paths)
+
+        # Assert
+        self.assertEqual(result, {})

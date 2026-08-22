@@ -1,4 +1,4 @@
-# Copyright 2021-2025 Chair for Software & Systems Engineering, TUM
+# Copyright 2026 Stephan Lipp
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,8 +26,9 @@ from fuzztastic.shm import SharedMemory
 from fuzztastic.utils.fs import is_likely_file
 from fuzztastic.utils.io import write_text
 from fuzztastic.utils.proc import run_shell_command
-from fuzztastic.visualization import Visualization
-from fuzztastic.visualization.treemap import TreemapVisualization
+from fuzztastic.visualization.base import VisualizationType
+from fuzztastic.visualization.factory import get_visualization
+from fuzztastic.visualization.web_app import VisualizationApp
 
 FT_ENVVAR_SHM_NAME: str = "FT_SHM_NAME"
 FT_ENVVAR_BB_COUNT: str = "FT_BB_COUNT"
@@ -72,9 +73,10 @@ def main(
     ft_shm_name: Annotated[
         str, typer.Option("--shm-name", help="Name of the shared memory segment.")
     ] = DEFAULT_SHM_NAME,
-    enable_visualization: Annotated[
-        bool, typer.Option("--visualization", is_flag=True, help="Enable the coverage treemap visualization.")
-    ] = False,
+    visualization_types: Annotated[
+        list[VisualizationType] | None,
+        typer.Option("--visualization", show_choices=True, help="Visualization to launch."),
+    ] = None,
     config_file: Annotated[
         Path,
         typer.Option(
@@ -106,21 +108,24 @@ def main(
 
     start_time = time.time()
 
-    visualization: Visualization | None = None
-
     scheduler = Scheduler(config.interval_spec, persist_cov_data)
     ft_shm = SharedMemory(ft_shm_name, num_bbs)
 
-    if enable_visualization:
-        visualization = TreemapVisualization(
-            bb_metadata, ft_shm, start_time, config.visualization.interval, config.visualization.port
-        )
+    visualization_app: VisualizationApp | None = None
 
     ft_shm.open()
     scheduler.start(output_file, is_file, start_time, ft_shm)
 
-    if enable_visualization:
-        visualization.start()  # type: ignore
+    if visualization_types:
+        type_to_intervals = {VisualizationType.TREEMAP: config.visualization.treemap.interval}
+        visualizations = [
+            get_visualization(visualization_type, start_time, type_to_intervals[visualization_type])
+            for visualization_type in visualization_types
+        ]
+        visualization_app = VisualizationApp(config.visualization.port, visualizations, bb_metadata, ft_shm)
+
+    if visualization_app:
+        visualization_app.start()
 
     try:
         run_shell_command(fuzzing_cmd, ft_env_vars)
@@ -129,8 +134,8 @@ def main(
     except KeyboardInterrupt:
         pass
 
-    if enable_visualization:
-        visualization.stop()  # type: ignore
+    if visualization_app:
+        visualization_app.stop()
 
     scheduler.stop()
     ft_shm.close()
